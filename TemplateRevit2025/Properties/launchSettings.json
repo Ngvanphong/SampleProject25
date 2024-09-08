@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TemplateRevit2025": {
+      "commandName": "Project"
+    },
+    "Revit2025.exe": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\Autodesk\\Revit 2025\\Revit.exe"
+    }
+  }
+}

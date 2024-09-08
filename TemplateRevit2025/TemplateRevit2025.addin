@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type="Command">
+		<Text>Command TemplateRevit2025</Text>
+		<Description>TemplateRevit2025</Description>
+		<Assembly>KssApi\TemplateRevit2025.dll</Assembly>
+		<FullClassName>TemplateRevit2025.Command</FullClassName>
+		<ClientId>4392dbc1-e92d-4a5f-8fa9-062e5f70f146</ClientId>
+		<VendorId>Kss</VendorId>
+		<VendorDescription>Kss</VendorDescription>
+	</AddIn>
+	<AddIn Type="Application">
+		<Name>Application TemplateRevit2025</Name>
+		<Assembly>KssApi\TemplateRevit2025.dll</Assembly>
+		<FullClassName>TemplateRevit2025.App</FullClassName>
+		<ClientId>49f2fb0b-508e-4933-818a-ea5f25965b0b</ClientId>
+		<VendorId>Kss</VendorId>
+		<VendorDescription>Kss</VendorDescription>
+	</AddIn>
+</RevitAddIns>
