@@ -10,17 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TemplateRevit2025.View.CreateBeam
 {
     /// <summary>
-    /// Interaction logic for FamiliesWpf.xaml
+    /// Interaction logic for frmCreateBeamMain.xaml
     /// </summary>
-    public partial class FamiliesWpf : System.Windows.Controls.UserControl
+    public partial class frmCreateBeamMain : Window
     {
-        public FamiliesWpf()
+        public frmCreateBeamMain()
         {
             InitializeComponent();
         }

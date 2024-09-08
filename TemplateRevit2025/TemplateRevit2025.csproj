@@ -53,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="RevitHandler\" />
+    <Folder Include="RevitHandler\CreateBeam\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TemplateRevit2025.View.CreateBeam
 {
     /// <summary>
-    /// Interaction logic for CreateBeamWpf.xaml
+    /// Interaction logic for frmCreateBeamSubBottom.xaml
     /// </summary>
-    public partial class CreateBeamWpf : Window
+    public partial class frmCreateBeamSubBottom : System.Windows.Controls.UserControl
     {
-        public CreateBeamWpf()
+        public frmCreateBeamSubBottom()
         {
             InitializeComponent();
         }
