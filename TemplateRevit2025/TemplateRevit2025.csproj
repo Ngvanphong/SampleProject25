@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Model\" />
     <Folder Include="RevitHandler\CreateBeam\" />
   </ItemGroup>
 
