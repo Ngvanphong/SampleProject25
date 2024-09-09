@@ -13,16 +13,15 @@ namespace TemplateRevit2025.RevitHandler.CreateBeam
 {
     public class CreateBeamHandler : ExternalEventHandler
     {
-        public CreateBeamHandler(Window form, string nameHandler) : base(form, nameHandler)
+        public CreateBeamHandler(Window window, string nameHandler) : base(window, nameHandler)
         {
         }
+
         public override void Execute(UIApplication app)
         {
-            var form = base._form as frmCreateBeamMain;
-            var selectedCombobox = form.comboboxFamily.SelectedItem as Family;
+            var form = WindowForm as frmCreateBeamMain;
+            Family family = form.comboboxFamily.SelectedItem as Family;
             return;
         }
-
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +10,9 @@ namespace TemplateRevit2025.Services
 {
     public class CreateColumnService : ICreateColumnService
     {
-        public int TotalCount()
+        public IEnumerable<Family> GetFamilies(Document doc)
         {
-            return 10;
+            return new FilteredElementCollector(doc).OfClass(typeof(Family)).Cast<Family>();
         }
     }
 }

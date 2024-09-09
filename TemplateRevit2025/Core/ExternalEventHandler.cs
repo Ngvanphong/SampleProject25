@@ -8,25 +8,20 @@ using System.Windows;
 
 namespace TemplateRevit2025.Core
 {
-    public class ExternalEventHandler : IExternalEventHandler
+    public abstract class ExternalEventHandler : IExternalEventHandler
     {
-        private string _nameHandler = string.Empty;
-        public Window _form { get; private set; }
-        public ExternalEventHandler(Window form, string nameHandler)
+        public Window WindowForm { get;private set; }
+        private string _nameHandler;
+        public ExternalEventHandler(Window window,string nameHandler)
         {
-            _form= form;
-            _nameHandler= nameHandler;
+            WindowForm = window;
+            _nameHandler = nameHandler;
         }
-
-        public virtual void Execute(UIApplication app)
+        
+        public abstract void Execute(UIApplication app);
+        public virtual string GetName()
         {
-
-        }
-
-
-        public string GetName()
-        {
-           return _nameHandler;
+            return _nameHandler;
         }
     }
 }
