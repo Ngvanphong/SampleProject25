@@ -25,7 +25,7 @@ namespace TemplateRevit2025
                     DisableDefaults = true
                 });
 
-            // loger
+            // logger
 
             builder.Services.AddTransient<ICreateColumnService, CreateColumnService>();
             _host = builder.Build();
