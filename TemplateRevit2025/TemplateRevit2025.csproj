@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
 	 <UseWPF>true</UseWPF>
 	 <PlatformTarget>x64</PlatformTarget>
@@ -23,25 +23,22 @@
   <ItemGroup>
     <Folder Include="Images\" />
     <Folder Include="Model\" />
-    <Folder Include="RevitHandler\CreateBeam\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Serilog" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="AdWindows">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2025\AdWindows.dll</HintPath>
+      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\AdWindows.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2025\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\RevitAPI.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2025\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\RevitAPIUI.dll</HintPath>
     </Reference>
   </ItemGroup>
 

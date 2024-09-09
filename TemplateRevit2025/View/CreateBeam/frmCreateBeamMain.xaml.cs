@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,15 @@ namespace TemplateRevit2025.View.CreateBeam
     /// </summary>
     public partial class frmCreateBeamMain : Window
     {
+        public ExternalEvent _createBeamEvent { get; set; }
         public frmCreateBeamMain()
         {
             InitializeComponent();
+        }
+
+        private void btnClick(object sender, RoutedEventArgs e)
+        {
+            _createBeamEvent.Raise();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,14 +21,15 @@ namespace TemplateRevit2025
             var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(
                 new HostApplicationBuilderSettings
                 {
-                    ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly()!.Location),
+                    DisableDefaults = true
                 });
 
             // loger
 
             builder.Services.AddTransient<ICreateColumnService, CreateColumnService>();
             _host = builder.Build();
-            _host.Start ();
+            _host.Start();
         }
         public static void Stop()
         {
