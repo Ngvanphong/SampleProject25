@@ -12,6 +12,12 @@
         <vm:SubLeftVM />
     </UserControl.DataContext>
     <Grid>
-            
+        <ComboBox Height="30" Name="comboboxFamily">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
     </Grid>
 </UserControl>
