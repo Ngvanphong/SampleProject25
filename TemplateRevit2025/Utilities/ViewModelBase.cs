@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TemplateRevit2025.Utilities
 {
-   class ViewModelBase : INotifyPropertyChanged
+    class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propName= null)

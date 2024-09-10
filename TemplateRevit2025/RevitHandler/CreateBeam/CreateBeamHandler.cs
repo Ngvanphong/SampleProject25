@@ -20,7 +20,6 @@ namespace TemplateRevit2025.RevitHandler.CreateBeam
         public override void Execute(UIApplication app)
         {
             var form = WindowForm as frmCreateBeamMain;
-            Family family = form.comboboxFamily.SelectedItem as Family;
             return;
         }
     }

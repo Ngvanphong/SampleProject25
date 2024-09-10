@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +10,7 @@ namespace TemplateRevit2025.ViewModel.CreateBeam
 {
     class SubRightVM : ViewModelBase
     {
+        public ElementId Id { set; get; }
+        public string SyName { set; get; }    
     }
 }

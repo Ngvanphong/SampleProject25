@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TemplateRevit2025.View.CreateBeam"
         mc:Ignorable="d"
-        Title="frmCreateBeamMain" Height="200" Width="800">
+        Title="Main Form" Height="200" Width="400"
+        >
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -14,22 +15,26 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <ComboBox Height="30" Name="comboboxFamily">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-        <Button Height="40" Grid.Row="1" Grid.Column="1" Click="btnClick" Content="Ok"/>
+        <ContentControl Name="left">
+            <local:frmCreateBeamSubLeft/>
+        </ContentControl>
+        <ContentControl  Grid.Column="2" Name="right">
+            <local:frmCreateBeamSubRight/>
+        </ContentControl>
+        <ContentControl  Grid.Row="1" Name="bottom">
+            <local:frmCreateBeamSubBottom/>
+        </ContentControl>
+
+        <Button Style="{StaticResource widthButton}" Height="40" Grid.Row="1" Grid.Column="2" Click="btnClick" Content="Ok"/>
     </Grid>
 </Window>
