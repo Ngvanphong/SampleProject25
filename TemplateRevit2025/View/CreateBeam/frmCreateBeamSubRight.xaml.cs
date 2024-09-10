@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TemplateRevit2025.ViewModel.CreateBeam;
 
 namespace TemplateRevit2025.View.CreateBeam
 {

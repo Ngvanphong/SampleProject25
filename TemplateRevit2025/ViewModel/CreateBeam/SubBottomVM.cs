@@ -9,6 +9,10 @@ namespace TemplateRevit2025.ViewModel.CreateBeam
 {
     class SubBottomVM
     {
+        public SubBottomVM()
+        {
+            
+        }
         public ElementId Id { set;get; }
         public string ParaName { set;get; } 
     }

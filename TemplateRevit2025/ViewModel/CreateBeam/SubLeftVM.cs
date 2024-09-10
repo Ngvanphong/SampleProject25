@@ -10,7 +10,12 @@ namespace TemplateRevit2025.ViewModel.CreateBeam
 {
     class SubLeftVM : ViewModelBase
     {
+        public List<FamilyVM> Items { set; get; }
+    }
+
+    class FamilyVM
+    {
         public ElementId Id { set; get; }
-        public string FaName { set; get; }
+        public string Name { set; get; }
     }
 }

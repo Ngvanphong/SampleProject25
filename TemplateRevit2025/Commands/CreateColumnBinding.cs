@@ -28,12 +28,15 @@ namespace TemplateRevit2025.Commands
             ExternalEvent createBeamEvent= ExternalEvent.Create(createBeamHandler);
             form._createBeamEvent = createBeamEvent;
             
-            List<SubLeftVM> listSubLeft = new List<SubLeftVM>();
-            listFamily.ToList().ForEach(x => listSubLeft.Add(new SubLeftVM { Id = x.Id, Name = x.Name }));
-            form.subLeft.DataContext = listSubLeft;
-
+            List<FamilyVM> listFamilyOfSubLeft = new List<FamilyVM>();
+            listFamily.ToList().ForEach(x => listFamilyOfSubLeft.Add(new FamilyVM { Id = x.Id, Name = x.Name }));
             
-
+            MainVM mainVM= new MainVM();
+            SubLeftVM subLeft = new SubLeftVM();
+            subLeft.Items = listFamilyOfSubLeft;
+            mainVM.LeftView=subLeft;
+            form.DataContext= mainVM;
+            
             form.Show();
 
 
