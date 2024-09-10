@@ -11,6 +11,7 @@ using TemplateRevit2025.Core;
 using TemplateRevit2025.Interfaces;
 using TemplateRevit2025.RevitHandler.CreateBeam;
 using TemplateRevit2025.View.CreateBeam;
+using TemplateRevit2025.ViewModel.CreateBeam;
 
 namespace TemplateRevit2025.Commands
 {
@@ -26,8 +27,11 @@ namespace TemplateRevit2025.Commands
             CreateBeamHandler createBeamHandler = new CreateBeamHandler(form, "CreateBeamHandler2");
             ExternalEvent createBeamEvent= ExternalEvent.Create(createBeamHandler);
             form._createBeamEvent = createBeamEvent;
-            frmCreateBeamSubLeft subLeft= form.left as frmCreateBeamSubLeft;
-            subLeft.comboboxFamily.ItemsSource= listFamily;
+            
+            List<SubLeftVM> listSubLeft = new List<SubLeftVM>();
+            listFamily.ToList().ForEach(x => listSubLeft.Add(new SubLeftVM { Id = x.Id, Name = x.Name }));
+            form.subLeft.DataContext = listSubLeft;
+
             
 
             form.Show();
