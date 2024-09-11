@@ -9,7 +9,7 @@
     <UserControl.DataContext>
         <vm:BottomVM></vm:BottomVM>
     </UserControl.DataContext>
-    <Grid Initialized="Grid_Initialized" >
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>

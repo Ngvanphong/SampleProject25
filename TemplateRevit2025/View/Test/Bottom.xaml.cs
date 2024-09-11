@@ -25,8 +25,4 @@ public partial class Bottom : UserControl
         top.NetWallDataEvent.EventWallDataReached += ComboboxWallChanged;
     }
 
-    private void Grid_Initialized(object sender, EventArgs e)
-    {
-       
-    }
 }
