@@ -7,7 +7,7 @@ using Autodesk.Revit.DB;
 
 namespace TemplateRevit2025.Interfaces
 {
-    public interface ICreateColumnService
+    public interface ITestService
     {
         IEnumerable<Family> GetFamilies(Document doc);
     }

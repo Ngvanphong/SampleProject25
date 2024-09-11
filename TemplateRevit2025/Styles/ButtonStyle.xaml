@@ -3,6 +3,7 @@
     <Style x:Key="widthButton" TargetType="Button">
         <Setter Property="Width" Value="100"/>
         <Setter Property="Background" Value="Green"/>
+        <Setter Property="HorizontalAlignment" Value="Right"></Setter>
     </Style>
     
 </ResourceDictionary>

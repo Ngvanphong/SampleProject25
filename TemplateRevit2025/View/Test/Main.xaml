@@ -1,0 +1,41 @@
+﻿<Window x:Class="TemplateRevit2025.View.Test.Main"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:vm="clr-namespace:TemplateRevit2025.ViewModel.Test"
+        xmlns:v="clr-namespace:TemplateRevit2025.View.Test"
+        mc:Ignorable="d"
+        Title="Main" Height="450" Width="450">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Styles/ButtonStyle.xaml"/>
+                <ResourceDictionary Source="../../Styles/ImageStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Window.DataContext>
+        <vm:MainVM/>
+    </Window.DataContext>
+    
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        
+        <ContentControl Name="ContentTopView" >
+            <v:Top DataContext="{Binding   TopVM}"></v:Top>
+        </ContentControl>
+        
+        <UserControl Grid.Row="1" Name="ContentBottomView">
+            <v:Bottom DataContext="{Binding BottomVM}"></v:Bottom>
+        </UserControl>
+        
+        
+        <Button Click="btnClickOk" Grid.Row="2" Content="Ok" Style="{StaticResource widthButton}"/>
+    </Grid>
+</Window>

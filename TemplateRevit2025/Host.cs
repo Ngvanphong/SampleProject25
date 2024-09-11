@@ -27,7 +27,7 @@ namespace TemplateRevit2025
 
             // logger
 
-            builder.Services.AddTransient<ICreateColumnService, CreateColumnService>();
+            builder.Services.AddTransient<ITestService, TestService>();
             _host = builder.Build();
             _host.Start();
         }
