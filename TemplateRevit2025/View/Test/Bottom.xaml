@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:TemplateRevit2025.ViewModel.Test"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" Loaded="bottomLoaded">
     <UserControl.DataContext>
         <vm:BottomVM></vm:BottomVM>
     </UserControl.DataContext>
-    <Grid>
+    <Grid Initialized="Grid_Initialized" >
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <ComboBox Name="ComboboxColumn" ItemsSource="{Binding ListColumn}">
+        <ComboBox  Name="ComboboxColumn" ItemsSource="{Binding ListColumn}">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
