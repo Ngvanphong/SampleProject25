@@ -1,8 +1,8 @@
 ﻿using Autodesk.Revit.UI;
 using System.Windows;
 using TemplateRevit2025.Model.Test;
+using TemplateRevit2025.NetEvent.Test;
 using TemplateRevit2025.RevitHandler.Test;
-using TemplateRevit2025.Utilities.Events.DataToView;
 using TemplateRevit2025.ViewModel.Test;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -20,8 +20,6 @@ public partial class Top : UserControl
 
     private void ComboboxWallChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-
-
         Main frmMain = Window.GetWindow(this) as Main;
         Bottom bottom= frmMain.ContentBottomView.Content as Bottom;
         WallDataReachedEventArgs args = new WallDataReachedEventArgs();

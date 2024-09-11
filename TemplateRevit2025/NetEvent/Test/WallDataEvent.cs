@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TemplateRevit2025.Utilities.Events.DataToView
+﻿namespace TemplateRevit2025.NetEvent.Test
 {
    public class WallDataEvent
     {
