@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="Images\" />
-    <Folder Include="RevitHandler\Test\" />
   </ItemGroup>
 
   <ItemGroup>

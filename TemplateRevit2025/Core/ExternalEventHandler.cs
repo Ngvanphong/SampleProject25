@@ -11,11 +11,17 @@ namespace TemplateRevit2025.Core
     public abstract class ExternalEventHandler : IExternalEventHandler
     {
         public Window WindowForm { get;private set; }
+        public System.Windows.Controls.UserControl UserControlForm { get; private set; }
+
         private string _nameHandler;
-        public ExternalEventHandler(Window window,string nameHandler)
+
+
+        public ExternalEventHandler(Window window, System.Windows.Controls.UserControl userControl,string nameHandler)
         {
             WindowForm = window;
+            UserControlForm = userControl;
             _nameHandler = nameHandler;
+
         }
         
         public abstract void Execute(UIApplication app);

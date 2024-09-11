@@ -14,7 +14,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <ComboBox Name="ComboboxWall" ItemsSource="{Binding ListWall}">
+        <ComboBox SelectionChanged="ComboboxWallChanged" Name="ComboboxWall" ItemsSource="{Binding ListWall}">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"></TextBlock>
