@@ -11,11 +11,11 @@ namespace TemplateRevit2025.Buttons
 {
     public class TestButton
     {
-        private const string PanelName = "Revit 25";
+       
         public  void Create(UIControlledApplication application)
         {
-            RibbonPanel addinPanel = application.CreateRibbonPanel(PanelName);
-            var pushButton = addinPanel.AddPushButton(typeof(TestCommand),"RevitButton");
+            RibbonPanel addinPanel = application.CreatePanel(AppConstant.PanelAr, AppConstant.TabName);
+            var pushButton = addinPanel.AddPushButton(typeof(TestCommand),"Revit\nButton");
             pushButton.SetImage("/TemplateRevit2025;component/Resources/Images/icons8-crop-24 (3).png");
             pushButton.SetLargeImage("/TemplateRevit2025;component/Resources/Images/icons8-crop-24 (3).png");
         }
