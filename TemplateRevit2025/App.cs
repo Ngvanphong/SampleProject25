@@ -12,13 +12,13 @@ namespace TemplateRevit2025
     {
         public Result OnShutdown(UIControlledApplication application)
         {
-            //Host.Stop();
+            Host.Stop();
             return Result.Succeeded;
         }
 
         public Result OnStartup(UIControlledApplication application)
         {
-            //Host.Start();
+            Host.Start();
             new TestButton().Create(application);
             return Result.Succeeded;
         }

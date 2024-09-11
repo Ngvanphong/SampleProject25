@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using TemplateRevit2025.Interfaces;
 using TemplateRevit2025.Model.Test;
 using TemplateRevit2025.RevitHandler.Test;
 using TemplateRevit2025.View.Test;
@@ -13,8 +14,11 @@ namespace TemplateRevit2025.Commands
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+           
             Document doc = commandData.Application.ActiveUIDocument.Document;
-            
+
+            var listFamily = Host.GetService<ITestService>().GetFamilies(doc);
+
             List<InstanceCus> listWall = new Autodesk.Revit.DB.FilteredElementCollector(doc)
                 .OfCategory(BuiltInCategory.OST_Walls)
                 .WhereElementIsNotElementType().OfClass(typeof(Wall)).Cast<Wall>()
@@ -39,10 +43,12 @@ namespace TemplateRevit2025.Commands
             ColumnSelectHandler columnGetHandler = new ColumnSelectHandler(frmMain,
                 frmMain.ContentTopView.Content as System.Windows.Controls.UserControl, "SelectColumnHandler");
             ExternalEvent columnEvent = ExternalEvent.Create(columnGetHandler);
-
             Top topView = frmMain.ContentTopView.Content as Top;
             topView.ColumnSelectEvent = columnEvent;
 
+            FinishHandler finishHandler = new FinishHandler(frmMain, null, "FinishTestHandler");
+            ExternalEvent finishEvent = ExternalEvent.Create(finishHandler);
+            frmMain.FinishEvent = finishEvent;
 
             frmMain.Show();
             

@@ -1,9 +1,11 @@
-﻿using System.Windows;
+﻿using Autodesk.Revit.UI;
+using System.Windows;
 
 namespace TemplateRevit2025.View.Test;
 
 public partial class Main : Window
 {
+    public ExternalEvent FinishEvent { set;get; }
     public Main()
     {
         InitializeComponent();
@@ -11,6 +13,6 @@ public partial class Main : Window
 
     private void btnClickOk(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        FinishEvent.Raise();
     }
 }
