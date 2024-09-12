@@ -36,6 +36,6 @@
         </UserControl>
         
         
-        <Button Click="btnClickOk" Grid.Row="2" Content="Ok" Style="{StaticResource widthButton}"/>
+        <Button Click="btnClickOk" Grid.Row="2" Content="Ok" Style="{StaticResource WidthButton}"/>
     </Grid>
 </Window>
