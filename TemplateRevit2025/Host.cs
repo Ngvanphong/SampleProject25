@@ -27,6 +27,8 @@ namespace TemplateRevit2025
 
             // logger
 
+            builder.Services.AddMediatR(config=>config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
             builder.Services.AddTransient<ITestService, TestService>();
             _host = builder.Build();
             _host.Start();
