@@ -28,7 +28,7 @@ public class PutFamilyByLineCommand : IExternalCommand
         Main frmMain = new Main();
         frmMain.DataContext = mainVm;
 
-        TypeFamilyHandler typeFamilyHandler = new TypeFamilyHandler(null,null, "TypeFamilyHandler");
+        TypeFamilyHandler typeFamilyHandler = new TypeFamilyHandler(null,null,null, "TypeFamilyHandler");
 
         ExternalEvent familyEvent= ExternalEvent.Create(typeFamilyHandler);
         Top topView= frmMain.TopView.Content as Top;

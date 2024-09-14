@@ -15,14 +15,15 @@ namespace TemplateRevit2025.RevitHandler.Test
 {
     public class FinishHandler : ExternalEventHandler
     {
-        public FinishHandler(Window window, System.Windows.Controls.UserControl userControl, string nameHandler)
-            : base(window, userControl, nameHandler)
+        public FinishHandler(Window mainForm, System.Windows.Controls.UserControl sourceControl,
+            System.Windows.Controls.UserControl targetControl, string nameHandler) : 
+            base(mainForm, sourceControl, targetControl, nameHandler)
         {
         }
 
         public override void Execute(UIApplication app)
         {
-            Main frmMain = WindowForm as Main;
+            Main frmMain = MainForm as Main;
             Top topContentView = frmMain.ContentTopView.Content as Top;
             InstanceCus wallSelected = topContentView.ComboboxWall.SelectedItem as InstanceCus;
             return;

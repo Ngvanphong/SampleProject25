@@ -31,22 +31,21 @@ namespace TemplateRevit2025.Commands
             
             
 
-            MainVM mainVm = new MainVM();
-
-            TopVM topVm = new TopVM();
-            topVm.ListWall = listWall;
-            topVm.ListDoor = listDoor;
-            mainVm.TopVM = topVm;
             Main frmMain = new Main();
-            frmMain.DataContext = mainVm;
+            TopVM topVM = new TopVM();
+            topVM.ListWall = listWall;
+            topVM.ListDoor = listDoor;
+            (frmMain.ContentTopView.Content as Top).DataContext = topVM;
 
-            ColumnSelectHandler columnGetHandler = new ColumnSelectHandler(frmMain,
-                frmMain.ContentTopView.Content as System.Windows.Controls.UserControl, "SelectColumnHandler");
+            ColumnSelectHandler columnGetHandler = new ColumnSelectHandler(null,
+                frmMain.ContentTopView.Content as System.Windows.Controls.UserControl, 
+                frmMain.ContentBottomView.Content as System.Windows.Controls.UserControl,
+                "SelectColumnHandler");
             ExternalEvent columnEvent = ExternalEvent.Create(columnGetHandler);
             Top topView = frmMain.ContentTopView.Content as Top;
             topView.ColumnSelectEvent = columnEvent;
 
-            FinishHandler finishHandler = new FinishHandler(frmMain, null, "FinishTestHandler");
+            FinishHandler finishHandler = new FinishHandler(frmMain,null, null, "FinishTestHandler");
             ExternalEvent finishEvent = ExternalEvent.Create(finishHandler);
             frmMain.FinishEvent = finishEvent;
 

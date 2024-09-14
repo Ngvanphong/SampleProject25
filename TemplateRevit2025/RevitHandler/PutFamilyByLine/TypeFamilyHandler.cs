@@ -16,10 +16,10 @@ namespace TemplateRevit2025.RevitHandler.PutFamilyByLine
     public class TypeFamilyHandler : ExternalEventHandler
     {
         private FamilyVM familySelected;
-        public TypeFamilyHandler(Window window, System.Windows.Controls.UserControl userControl,
-            string nameHandler) : base(window, userControl, nameHandler)
-        {
 
+        public TypeFamilyHandler(Window mainForm, System.Windows.Controls.UserControl sourceControl,
+            System.Windows.Controls.UserControl targetControl, string nameHandler) : base(mainForm, sourceControl, targetControl, nameHandler)
+        {
         }
 
         public override void Execute(UIApplication app)

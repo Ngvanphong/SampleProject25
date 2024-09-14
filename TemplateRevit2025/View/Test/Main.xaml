@@ -26,13 +26,12 @@
             <RowDefinition/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        
+
         <ContentControl Name="ContentTopView" >
-            <v:Top DataContext="{Binding   TopVM}"></v:Top>
+            <v:Top></v:Top>
         </ContentControl>
-        
         <UserControl Grid.Row="1" Name="ContentBottomView">
-            <v:Bottom DataContext="{Binding BottomVM}"></v:Bottom>
+            <v:Bottom></v:Bottom>
         </UserControl>
         
         

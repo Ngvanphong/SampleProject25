@@ -10,16 +10,20 @@ namespace TemplateRevit2025.Core
 {
     public abstract class ExternalEventHandler : IExternalEventHandler
     {
-        public Window WindowForm { get;private set; }
-        public System.Windows.Controls.UserControl UserControlForm { get; private set; }
+        public Window MainForm { get;private set; }
+        public System.Windows.Controls.UserControl SourcControl { get; private set; }
+        public System.Windows.Controls.UserControl TargetControl { get; private set; }
 
         private string _nameHandler;
 
-
-        public ExternalEventHandler(Window window, System.Windows.Controls.UserControl userControl,string nameHandler)
+        public ExternalEventHandler(Window mainForm, 
+            System.Windows.Controls.UserControl sourceControl,
+            System.Windows.Controls.UserControl targetControl,
+            string nameHandler)
         {
-            WindowForm = window;
-            UserControlForm = userControl;
+            MainForm = mainForm;
+            SourcControl = sourceControl;
+            TargetControl = targetControl;
             _nameHandler = nameHandler;
 
         }

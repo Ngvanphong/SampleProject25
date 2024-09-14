@@ -16,11 +16,10 @@ namespace TemplateRevit2025.RevitHandler.Test
 {
     public class ColumnSelectHandler : ExternalEventHandler
     {
-        public ColumnSelectHandler(Window window, System.Windows.Controls.UserControl userControl, string nameHandler) 
-            : base(window,userControl, nameHandler)
+        public ColumnSelectHandler(Window mainForm, System.Windows.Controls.UserControl sourceControl,
+            System.Windows.Controls.UserControl targetControl, string nameHandler) : 
+            base(mainForm, sourceControl, targetControl, nameHandler)
         {
-           
-           
         }
 
         public override void Execute(UIApplication app)
@@ -36,12 +35,11 @@ namespace TemplateRevit2025.RevitHandler.Test
                 .WhereElementIsNotElementType().OfClass(typeof(FamilyInstance)).Cast<FamilyInstance>()
                 .Select(x => new InstanceCus { Id = x.Id, Name = x.Name }).ToList();
 
-            Main frmMain= WindowForm as Main;
-            MainVM mainVm= frmMain.DataContext as MainVM;
-            BottomVM bottomVm = new BottomVM();
-            bottomVm.ListColumn = listColumn;
+            BottomVM bottomVm= new BottomVM();
+            bottomVm.ListColumn= listColumn;
             bottomVm.ListBeam= listBeam;
-            mainVm.BottomVM = bottomVm;
+            Bottom bottomView = TargetControl as Bottom;
+            bottomView.DataContext= bottomVm;
             
         }
     }
