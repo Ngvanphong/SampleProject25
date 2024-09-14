@@ -2,6 +2,5 @@
 
 class MainVM
 {
-    public TopVM TopVM { get; set; }
-    public BottomVM BottomVM { get; set; }
+   
 }

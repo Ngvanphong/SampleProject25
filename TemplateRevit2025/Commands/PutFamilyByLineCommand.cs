@@ -5,6 +5,8 @@ using TemplateRevit2025.Interfaces;
 using TemplateRevit2025.RevitHandler.PutFamilyByLine;
 using TemplateRevit2025.View.PutFamilyByLine;
 using TemplateRevit2025.ViewModel.PutFamilyByLine;
+using System.Windows.Controls;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace TemplateRevit2025.Commands;
 
@@ -17,21 +19,15 @@ public class PutFamilyByLineCommand : IExternalCommand
         IPutFamilyByLineService putService= Host.GetService<IPutFamilyByLineService>();
         IEnumerable<Family> listFamily = putService.GetFamilyFurniture(doc);
 
-       
-        MainVM mainVm= new MainVM();
+        Main frmMain = new Main();
         TopVM topVM = new TopVM();
         topVM.FamilyList = listFamily.Select(x => new FamilyVM { Id = x.Id, NameFamily = x.Name }).ToList();
-        mainVm.TopVM = topVM;
+        Top topView = frmMain.ContentTop.Content as Top;
+        topView.DataContext = topVM;
 
-
-
-        Main frmMain = new Main();
-        frmMain.DataContext = mainVm;
-
-        TypeFamilyHandler typeFamilyHandler = new TypeFamilyHandler(null,null,null, "TypeFamilyHandler");
-
+        TypeFamilyHandler typeFamilyHandler = new TypeFamilyHandler(null,frmMain.ContentTop.Content as UserControl,
+            frmMain.ContentBottom.Content as UserControl, "TypeFamilyHandler");
         ExternalEvent familyEvent= ExternalEvent.Create(typeFamilyHandler);
-        Top topView= frmMain.TopView.Content as Top;
         topView.FamilyTypeEvent = familyEvent;
 
         frmMain.Show();

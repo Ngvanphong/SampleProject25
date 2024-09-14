@@ -4,16 +4,12 @@ using UserControl = System.Windows.Controls.UserControl;
 
 namespace TemplateRevit2025.View.PutFamilyByLine;
 
-public partial class Bottom : UserControl, IRequestHandler<FamilySend, bool>
+public partial class Bottom : UserControl
 {
     public Bottom()
     {
         InitializeComponent();
     }
 
-    public Task<bool> Handle(FamilySend request, CancellationToken cancellationToken)
-    {
-        var data = request.FamilyChoose;
-        return Task.FromResult(true);
-    }
+    
 }
