@@ -1,6 +1,7 @@
 ﻿namespace TemplateRevit2025.ViewModel.PutFamilyByLine;
 
-public class MainVM
+class MainVM
 {
-    
+    public TopVM TopVM { get; set; }
+    public BottomVM BottomVM { get; set; }
 }

@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TemplateRevit2025.Interfaces;
+using TemplateRevit2025.RevitHandler.PutFamilyByLine;
 using TemplateRevit2025.Services;
 
 namespace TemplateRevit2025
@@ -29,7 +30,11 @@ namespace TemplateRevit2025
 
             builder.Services.AddMediatR(config=>config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
+            // add service
             builder.Services.AddTransient<ITestService, TestService>();
+            builder.Services.AddTransient<IPutFamilyByLineService, PutFamilyByLineService>();
+           
+;
             _host = builder.Build();
             _host.Start();
         }

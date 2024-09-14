@@ -20,6 +20,7 @@ namespace TemplateRevit2025
         {
             Host.Start();
             new TestButton().Create(application);
+            new PutFamilyByLineButton().Create(application);    
             return Result.Succeeded;
         }
     }
