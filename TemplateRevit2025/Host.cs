@@ -33,6 +33,7 @@ namespace TemplateRevit2025
             // add service
             builder.Services.AddTransient<ITestService, TestService>();
             builder.Services.AddTransient<IPutFamilyByLineService, PutFamilyByLineService>();
+            builder.Services.AddTransient<ICreatePipeService,CreatePipeService>();
            
 ;
             _host = builder.Build();

@@ -21,6 +21,7 @@ namespace TemplateRevit2025
             Host.Start();
             new TestButton().Create(application);
             new PutFamilyByLineButton().Create(application);    
+            new CreatePipeButton().Create(application);
             return Result.Succeeded;
         }
     }
