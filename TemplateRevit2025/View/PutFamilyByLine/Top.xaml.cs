@@ -9,7 +9,7 @@ namespace TemplateRevit2025.View.PutFamilyByLine;
 public partial class Top : UserControl
 {
 
-    public ExternalEvent FamilyTypeEvent { set; get; }
+    public ExternalEvent SelectTypeEvent { set; get; }
     public Top()
     {
         InitializeComponent();
@@ -18,6 +18,6 @@ public partial class Top : UserControl
 
     private  void ComboboxFamilyChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        FamilyTypeEvent.Raise();
+        SelectTypeEvent.Raise();
     }
 }

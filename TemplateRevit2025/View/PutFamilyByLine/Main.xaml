@@ -6,10 +6,7 @@
         xmlns:view="clr-namespace:TemplateRevit2025.View.PutFamilyByLine"
         xmlns:vm="clr-namespace:TemplateRevit2025.ViewModel.PutFamilyByLine"
         mc:Ignorable="d"
-        Title="Main" Height="450" Width="800">
-    <Window.DataContext>
-        <vm:MainVM/>
-    </Window.DataContext>
+        Title="Main" Height="450" Width="800" Topmost="True">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

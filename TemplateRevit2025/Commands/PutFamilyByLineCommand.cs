@@ -25,10 +25,11 @@ public class PutFamilyByLineCommand : IExternalCommand
         Top topView = frmMain.ContentTop.Content as Top;
         topView.DataContext = topVM;
 
-        TypeFamilyHandler typeFamilyHandler = new TypeFamilyHandler(null,frmMain.ContentTop.Content as UserControl,
-            frmMain.ContentBottom.Content as UserControl, "TypeFamilyHandler");
-        ExternalEvent familyEvent= ExternalEvent.Create(typeFamilyHandler);
-        topView.FamilyTypeEvent = familyEvent;
+
+        SelectTypeHandler selectTypeHandler = new SelectTypeHandler(null,topView,
+            frmMain.ContentBottom.Content as UserControl,"SelectTypeHandler1");
+        ExternalEvent selectEvent= ExternalEvent.Create(selectTypeHandler);
+        topView.SelectTypeEvent = selectEvent;
 
         frmMain.Show();
         
