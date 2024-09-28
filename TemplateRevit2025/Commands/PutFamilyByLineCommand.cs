@@ -25,7 +25,6 @@ public class PutFamilyByLineCommand : IExternalCommand
         Top topView = frmMain.ContentTop.Content as Top;
         topView.DataContext = topVM;
 
-
         SelectTypeHandler selectTypeHandler = new SelectTypeHandler(null,topView,
             frmMain.ContentBottom.Content as UserControl,"SelectTypeHandler1");
         ExternalEvent selectEvent= ExternalEvent.Create(selectTypeHandler);
@@ -33,9 +32,6 @@ public class PutFamilyByLineCommand : IExternalCommand
 
         frmMain.Show();
         
-
-
-
         return Result.Succeeded;
     }
 }
