@@ -22,7 +22,7 @@
             <RowDefinition/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Button Style="{StaticResource ButtonSmall}" Content="Ok" Grid.Row="2"></Button>
+        <Button Click="btnOk" Style="{StaticResource ButtonSmall}" Content="Ok" Grid.Row="2"></Button>
         <ContentControl Name="ContentTop" Grid.Row="0">
             <view:Top DataContext="{Binding TopVM}"></view:Top>
         </ContentControl>

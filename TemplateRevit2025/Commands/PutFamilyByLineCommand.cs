@@ -7,6 +7,7 @@ using TemplateRevit2025.View.PutFamilyByLine;
 using TemplateRevit2025.ViewModel.PutFamilyByLine;
 using System.Windows.Controls;
 using UserControl = System.Windows.Controls.UserControl;
+using TemplateRevit2025.Services;
 
 namespace TemplateRevit2025.Commands;
 
@@ -15,11 +16,16 @@ public class PutFamilyByLineCommand : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
+        IPutFamilyByLineService putService=  new PutFamilyByLineService();
         Document doc = commandData.Application.ActiveUIDocument.Document;
-        IPutFamilyByLineService putService= Host.GetService<IPutFamilyByLineService>();
+        
         IEnumerable<Family> listFamily = putService.GetFamilyFurniture(doc);
 
-        Main frmMain = new Main();
+        PutFamilybyLineHandler putFamilyHandler = new PutFamilybyLineHandler(null, null, null,
+            "PutFmailyHanler");
+        ExternalEvent putFamilyEvent = ExternalEvent.Create(putFamilyHandler);
+        Main frmMain = new Main(putFamilyEvent);
+        
         TopVM topVM = new TopVM();
         topVM.FamilyList = listFamily.Select(x => new FamilyVM { Id = x.Id, NameFamily = x.Name }).ToList();
         Top topView = frmMain.ContentTop.Content as Top;

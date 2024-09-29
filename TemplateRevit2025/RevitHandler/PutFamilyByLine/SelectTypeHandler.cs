@@ -23,7 +23,7 @@ namespace TemplateRevit2025.RevitHandler.PutFamilyByLine
         public override void Execute(UIApplication app)
         {
             Document doc = app.ActiveUIDocument.Document;
-            Top topView = SourcControl as Top;
+            Top topView = SourceControl as Top;
             FamilyVM familyVmChoose= topView.ComboboxFamily.SelectedItem as FamilyVM;
 
             Family familyChoose = doc.GetElement(familyVmChoose.Id) as Family;
@@ -35,7 +35,8 @@ namespace TemplateRevit2025.RevitHandler.PutFamilyByLine
                 listFamilySymbol.Add(faSy);
             }
 
-            List<TypeVM> listTypes = listFamilySymbol.Select(item=>new TypeVM { Id= item.Id,TypeName=item.Name }).ToList();
+            List<TypeVM> listTypes = listFamilySymbol
+                .Select(item=>new TypeVM { Id= item.Id,TypeName=item.Name }).ToList();
             Bottom bottomView= TargetControl as Bottom;
             BottomVM bottomVm = new BottomVM();
             bottomVm.ListTypeVM = listTypes;
