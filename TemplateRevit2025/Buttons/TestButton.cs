@@ -15,7 +15,7 @@ namespace TemplateRevit2025.Buttons
         public  void Create(UIControlledApplication application)
         {
             RibbonPanel addinPanel = application.CreatePanel(AppConstant.PanelAr, AppConstant.TabName);
-            var pushButton = addinPanel.AddPushButton(typeof(DuctToAirTerminalCommand),"Revit\nButton");
+            var pushButton = addinPanel.AddPushButton(typeof(ChairFmailyCommmand),"Revit\nButton");
             pushButton.SetImage("/TemplateRevit2025;component/Resources/Images/icons8-crop-24 (3).png");
             pushButton.SetLargeImage("/TemplateRevit2025;component/Resources/Images/icons8-crop-24 (3).png");
         }
