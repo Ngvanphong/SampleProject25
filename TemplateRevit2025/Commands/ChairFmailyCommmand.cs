@@ -32,7 +32,7 @@ namespace TemplateRevit2025.Commands
             form.DataContext = chairFamilyVM;
 
             GetTypeHandler getTypeHandler = new GetTypeHandler();
- 
+            form.sendEventToRevitHanler.EventWallDataReached += getTypeHandler.SetData;
             ExternalEvent getTypEvent = ExternalEvent.Create(getTypeHandler);
 
             form.GetTypeEvent = getTypEvent;

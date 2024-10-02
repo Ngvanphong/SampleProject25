@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TemplateRevit2025.NetEvent.Test;
 
 namespace TemplateRevit2025.View.ChairFamily
 {
@@ -21,9 +22,12 @@ namespace TemplateRevit2025.View.ChairFamily
     public partial class ChairFamilyView : Window
     {
         public ExternalEvent GetTypeEvent { set; get; }
+        public WallDataEvent sendEventToRevitHanler;
         public ChairFamilyView()
         {
             InitializeComponent();
+            sendEventToRevitHanler = new WallDataEvent();  
+
         }
 
         private void btnOk(object sender, RoutedEventArgs e)
@@ -33,7 +37,9 @@ namespace TemplateRevit2025.View.ChairFamily
 
         private void comboboxFamilyChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            WallDataReachedEventArgs argss=new WallDataReachedEventArgs();
+            argss.WallData = new Model.Test.InstanceCus() {Name= "10" };
+            sendEventToRevitHanler.Raise(argss);
             GetTypeEvent.Raise();
         }
 

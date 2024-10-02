@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TemplateRevit2025.Model.Test;
+using TemplateRevit2025.NetEvent.Test;
 using TemplateRevit2025.View.ChairFamily;
 using TemplateRevit2025.ViewModel.ChairFamily;
 
@@ -13,7 +15,8 @@ namespace TemplateRevit2025.RevitHandler.ChairFamily
 {
     public class GetTypeHandler : IExternalEventHandler
     {
-        public FamillyVm SelectedFamily;
+        
+        public InstanceCus SelectedFamily;
 
         public void Execute(UIApplication app)
         {
@@ -31,6 +34,11 @@ namespace TemplateRevit2025.RevitHandler.ChairFamily
 
 
             return;
+        }
+
+        public void SetData(object sender, WallDataReachedEventArgs arg)
+        {
+            SelectedFamily = arg.WallData;
         }
 
         public string GetName()
