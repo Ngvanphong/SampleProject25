@@ -100,7 +100,7 @@ namespace TemplateRevit2025.Services
             Transform transform1 = Transform.CreateRotationAtPoint(axis, angle, pointDirection.Point);
             XYZ target1 = transform1.OfVector(originDirection).Normalize();
             double resultAngle = angle;
-            if (target1.IsAlmostEqualTo(targetDirection,0.000001))
+            if (target1.IsAlmostEqualTo(targetDirection,0.00001))
             {
                 resultAngle = angle;
             }
