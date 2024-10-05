@@ -5,9 +5,12 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TemplateRevit2025.Utilities;
 
 namespace TemplateRevit2025.Commands
 {
@@ -57,29 +60,49 @@ namespace TemplateRevit2025.Commands
                 t.Commit();
             }
 
+            Plane plane = Plane.CreateByNormalAndOrigin(normalLine, pMidEnd);
 
-            
+            XYZ pSPipe = curve.GetEndPoint(0);
+            XYZ pEPipe = curve.GetEndPoint(1);
+
+            XYZ pSInter = XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pSPipe);
+            XYZ pEInter= XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pEPipe);
+
+            using (Transaction t = new Transaction(doc, "CreatePipe"))
+            {
+                t.Start();
+                Level level = doc.ActiveView.GenLevel;
+                var pipeType = pipe.GetType();
+                Pipe.Create(doc, pipe.MEPSystem.GetTypeId(), pipe.PipeType.Id,
+                    doc.ActiveView.GenLevel.Id, pSInter, pEInter);
+                t.Commit();
+            }
 
 
             return Result.Succeeded;
 
         }
 
-        public class ILineFitler : ISelectionFilter
-        {
-            public bool AllowElement(Element elem)
-            {
-                if(elem.Category!= null && elem.Category.Id.Value==(long)BuiltInCategory.OST_PipeCurves)
-                {
-                    return true;
-                }
-                return false;
-            }
 
-            public bool AllowReference(Reference reference, XYZ position)
+        
+        
+
+       
+    }
+    public class ILineFitler : ISelectionFilter
+    {
+        public bool AllowElement(Element elem)
+        {
+            if (elem.Category != null && elem.Category.Id.Value == (long)BuiltInCategory.OST_PipeCurves)
             {
                 return true;
             }
+            return false;
+        }
+
+        public bool AllowReference(Reference reference, XYZ position)
+        {
+            return true;
         }
     }
 }
