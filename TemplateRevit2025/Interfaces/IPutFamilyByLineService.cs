@@ -16,11 +16,14 @@ namespace TemplateRevit2025.Interfaces
     {
         IEnumerable<Family> GetFamilyFurniture(Document doc);
 
-        XYZ GetPointByDistance(Curve curve, double distance);
+        XYZ GetPointByDistance(Curve curve, double distance, out double para);
 
         XYZ GetDirectionAtPoint(Document doc,Curve curve, XYZ point);
 
         List<PointDirection> GetPointDirectionByLine(Document doc,List<ModelCurve> listModelCurve,
             double divide);
+
+        void RotaionElementToVector(Document doc, FamilyInstance familyInstance, PointDirection pointDirection);
+        
     }
 }

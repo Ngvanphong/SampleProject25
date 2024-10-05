@@ -24,7 +24,9 @@ public class PutFamilyByLineCommand : IExternalCommand
         PutFamilybyLineHandler putFamilyHandler = new PutFamilybyLineHandler(null, null, null,
             "PutFmailyHanler");
         ExternalEvent putFamilyEvent = ExternalEvent.Create(putFamilyHandler);
-        Main frmMain = new Main(putFamilyEvent);
+        Main frmMain = new Main();
+        putFamilyHandler.mainForm = frmMain;
+        frmMain._putFamilyEvent = putFamilyEvent;
         
         TopVM topVM = new TopVM();
         topVM.FamilyList = listFamily.Select(x => new FamilyVM { Id = x.Id, NameFamily = x.Name }).ToList();

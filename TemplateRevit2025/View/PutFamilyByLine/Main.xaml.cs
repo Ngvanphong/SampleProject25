@@ -5,11 +5,10 @@ namespace TemplateRevit2025.View.PutFamilyByLine;
 
 public partial class Main : Window
 {
-    private ExternalEvent _putFamilyEvent;
-    public Main(ExternalEvent putFamilyEvent)
+    public ExternalEvent _putFamilyEvent;
+    public Main()
     {
         InitializeComponent();
-        _putFamilyEvent = putFamilyEvent;
     }
 
     private void btnOk(object sender, RoutedEventArgs e)
