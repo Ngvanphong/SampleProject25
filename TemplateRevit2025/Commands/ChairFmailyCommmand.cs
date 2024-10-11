@@ -20,6 +20,7 @@ namespace TemplateRevit2025.Commands
         {
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
+
             var listFamily = new FilteredElementCollector(doc).OfClass(typeof(Family)).
                 Cast<Family>().Where(x => x.FamilyCategoryId.Value == (long)BuiltInCategory.OST_Furniture)
                 .ToList();
@@ -29,13 +30,16 @@ namespace TemplateRevit2025.Commands
                 .ToList();
 
             var form = new ChairFamilyView();
+
             form.DataContext = chairFamilyVM;
 
             GetTypeHandler getTypeHandler = new GetTypeHandler();
-            form.sendEventToRevitHanler.EventWallDataReached += getTypeHandler.SetData;
-            ExternalEvent getTypEvent = ExternalEvent.Create(getTypeHandler);
+            ExternalEvent getTypeEvent = ExternalEvent.Create(getTypeHandler);
 
-            form.GetTypeEvent = getTypEvent;
+            form._familySendEvent.FamilyComboboxChangeEvent += getTypeHandler.SetDataFromEvent;
+            form.GetTypeEvent = getTypeEvent;
+
+            getTypeHandler.SendEventToForm.FamilyComboboxChangeEvent += form.SetListTypeVm;
 
             form.Show();
 

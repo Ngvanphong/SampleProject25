@@ -58,7 +58,6 @@ namespace TemplateRevit2025.RevitHandler.PutFamilyByLine
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                     service.RotaionElementToVector(doc, familyInstance,pointDir);
                 }
-                
                 t.Commit();
             }
 

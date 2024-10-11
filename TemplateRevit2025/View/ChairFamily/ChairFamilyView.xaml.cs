@@ -12,7 +12,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TemplateRevit2025.NetEvent.ChairFamily;
 using TemplateRevit2025.NetEvent.Test;
+using TemplateRevit2025.ViewModel.ChairFamily;
 
 namespace TemplateRevit2025.View.ChairFamily
 {
@@ -22,12 +24,20 @@ namespace TemplateRevit2025.View.ChairFamily
     public partial class ChairFamilyView : Window
     {
         public ExternalEvent GetTypeEvent { set; get; }
-        public WallDataEvent sendEventToRevitHanler;
+
+        public FamilyDataEvent _familySendEvent { set; get; }
+
+
+        public void SetListTypeVm(object sender, FamilyVmEventArgs sendData)
+        {
+            var dataContext = this.DataContext as ChairFamilyVM;
+            dataContext.Types = sendData.ListTypeVm;
+        }
         public ChairFamilyView()
         {
             InitializeComponent();
-            sendEventToRevitHanler = new WallDataEvent();  
-
+            _familySendEvent = new FamilyDataEvent();
+            
         }
 
         private void btnOk(object sender, RoutedEventArgs e)
@@ -37,10 +47,15 @@ namespace TemplateRevit2025.View.ChairFamily
 
         private void comboboxFamilyChanged(object sender, SelectionChangedEventArgs e)
         {
-            WallDataReachedEventArgs argss=new WallDataReachedEventArgs();
-            argss.WallData = new Model.Test.InstanceCus() {Name= "10" };
-            sendEventToRevitHanler.Raise(argss);
-            GetTypeEvent.Raise();
+           
+            FamilyVmEventArgs args = new FamilyVmEventArgs();
+            args.DataSend = (sender as System.Windows.Controls.ComboBox).SelectedItem as FamillyVm;
+
+            _familySendEvent.Raise(args); // noi phat su kien;
+
+            GetTypeEvent.Raise(); // de truy cap xuong revit get type va gian source combobox;
+
+
         }
 
         private void UpdateComboxboxType()
