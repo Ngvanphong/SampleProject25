@@ -43,8 +43,6 @@ namespace TemplateRevit2025.RevitHandler.ChairFamily
                 listTypeVm.Add(new TypeVm { Id = sy.Id, TypeName = sy.Name });
             }
 
-
-           
             FamilyVmEventArgs args= new FamilyVmEventArgs();
             args.ListTypeVm = listTypeVm;
             SendEventToForm.Raise(args);
