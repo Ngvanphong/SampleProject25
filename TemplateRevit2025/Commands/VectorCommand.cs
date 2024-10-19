@@ -49,6 +49,7 @@ namespace TemplateRevit2025.Commands
 
 
                 List<ElementFilter> listElementFitlerParent = new List<ElementFilter>();
+
                 listElementFitlerParent.Add(elementFilterRule1);
 
                 List<ElementFilter> listElementFilterChild = new List<ElementFilter>();
@@ -59,6 +60,7 @@ namespace TemplateRevit2025.Commands
                 listElementFitlerParent.Add(logicalChildOr);
 
                 ElementFilter logicalAndFilterParent = new LogicalAndFilter(listElementFitlerParent);
+
                 filter.SetElementFilter(logicalAndFilterParent);
                 t1.Commit();
             }
@@ -77,47 +79,79 @@ namespace TemplateRevit2025.Commands
                 t.Commit();
             }
 
+            ElementCategoryFilter pipeCateFitler = new ElementCategoryFilter(BuiltInCategory.OST_PipeCurves, true);
+            ElementCategoryFilter ductCatFilter = new ElementCategoryFilter(BuiltInCategory.OST_DuctCurves, true);
+            List<ElementFilter> listCateFilter = new List<ElementFilter>{ pipeCateFitler, ductCatFilter };
+            
+            LogicalOrFilter logicalOrFilterCate = new LogicalOrFilter(listCateFilter);
+
+            XYZ min1= new XYZ(0, 0, 0);
+            XYZ max1 = XYZ.Zero;
+            Outline outlineFilter= new Outline(min1, max1);
+
+            BoundingBoxIntersectsFilter boundIntersectionFilter = new BoundingBoxIntersectsFilter(outlineFilter);
+
+            IList<ElementFilter> listInterFilter= new List<ElementFilter> { boundIntersectionFilter, logicalOrFilterCate };
+
+            LogicalAndFilter logicalAndFilter= new LogicalAndFilter(listInterFilter);
+
+            var colleciton= new FilteredElementCollector(doc).WherePasses(logicalAndFilter);
+
+
+            var colleciton2 = new FilteredElementCollector(doc).WherePasses(boundIntersectionFilter).ToElements();
+            List<Element> listPipeDuct = new List<Element>();
+            foreach(Element el in colleciton2)
+            {
+                if(el.Category!=null && 
+                    (el.Category.Id.Value== (long)BuiltInCategory.OST_PipeCurves 
+                    || el.Category.Id.Value ==(long)BuiltInCategory.OST_DuctCurves)
+                    )
+                {
+                    listPipeDuct.Add(el);
+                }
+            }
 
 
 
 
 
-            //Pipe pipe = null;
-            //PickedBox pickBox = null;
-            //try
-            //{
-            //    //Reference refElement = uiDoc.Selection.PickObject(
-            //    //    Autodesk.Revit.UI.Selection.ObjectType.Element, new ILineFitler(),
-            //    //    "Pick a line");
+            Pipe pipe = null;
+            PickedBox pickBox = null;
+            try
+            {
+                Reference refElement = uiDoc.Selection.PickObject(
+                    Autodesk.Revit.UI.Selection.ObjectType.PointOnElement, new ILineFitler(),
+                    "Pick a line");
+                Element el = doc.GetElement((refElement));
 
-            //    //var pickObject = uiDoc.Selection.PickPoint("Pick a point");
-            //    //var pickRec = uiDoc.Selection.PickElementsByRectangle();
-            //    //var pickObjects = uiDoc.Selection.PickObjects(ObjectType.Element, "Pick pipe");
-            //   pickBox = uiDoc.Selection.PickBox(PickBoxStyle.Enclosing);
-               
+                //var pickObject = uiDoc.Selection.PickPoint("Pick a point");
+                //var pickRec = uiDoc.Selection.PickElementsByRectangle();
+                var pickObjects = uiDoc.Selection.PickObjects(ObjectType.Element, "Pick pipe");
+                pickBox = uiDoc.Selection.PickBox(PickBoxStyle.Enclosing);
 
-            //    //pipe = doc.GetElement(refElement) as Pipe;
-            //}
-            //catch { }
 
-            //XYZ min = pickBox.Min;
-            //XYZ max = pickBox.Max;
+                //pipe = doc.GetElement(refElement) as Pipe;
+            }
+            catch { }
 
-            //double xMin = Math.Min(min.X, max.X);
-            //double yMin = Math.Min(min.Y, max.Y);
-            //double zMin = Math.Min(min.Z, max.Z);
+            XYZ min = pickBox.Min;
+            XYZ max = pickBox.Max;
 
-            //double xMax = Math.Max(min.X, max.X);
-            //double yMax = Math.Max(min.Y, max.Y);
-            //double zMax = Math.Max(min.Z, max.Z);
+            double xMin = Math.Min(min.X, max.X);
+            double yMin = Math.Min(min.Y, max.Y);
+            double zMin = Math.Min(min.Z, max.Z);
 
-            //XYZ minTrue = new XYZ(xMin, yMin, zMin);
-            //XYZ maxTrue = new XYZ(xMax, yMax, zMax);
+            double xMax = Math.Max(min.X, max.X);
+            double yMax = Math.Max(min.Y, max.Y);
+            double zMax = Math.Max(min.Z, max.Z);
 
-            //Outline outline = new Outline(minTrue, maxTrue);
-            //BoundingBoxIntersectsFilter boundingIntersectionFilter = new BoundingBoxIntersectsFilter(outline);
-            //var allelemenInBox = new FilteredElementCollector(doc, doc.ActiveView.Id)
-            //    .WherePasses(boundingIntersectionFilter).ToList();
+            XYZ minTrue = new XYZ(xMin, yMin, zMin);
+            XYZ maxTrue = new XYZ(xMax, yMax, zMax);
+
+            Outline outline = new Outline(minTrue, maxTrue);
+            BoundingBoxIntersectsFilter boundingIntersectionFilter = new BoundingBoxIntersectsFilter(outline);
+            var allelemenInBox = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                .WherePasses(boundingIntersectionFilter).ToList();
 
             
 
@@ -125,52 +159,54 @@ namespace TemplateRevit2025.Commands
 
 
 
-            //LocationCurve locationCurve = pipe.Location as LocationCurve;
 
-            //Curve curve = locationCurve.Curve;
-            //Line line = curve as Line;
-            //XYZ ps = line.GetEndPoint(0);
-            //XYZ pe = line.GetEndPoint(1);
-            //XYZ pMid= ps.Add(pe).Divide(2);
 
-            //XYZ viewDirection = doc.ActiveView.ViewDirection.Normalize();
-            //XYZ direction= line.Direction.Normalize();
-            //XYZ normalLine= viewDirection.CrossProduct(direction).Normalize();
+            LocationCurve locationCurve = pipe.Location as LocationCurve;
 
-            //double lengthMili = 5;
-            //double lenthInch = UnitUtils.ConvertToInternalUnits(lengthMili, UnitTypeId.Meters);
+            Curve curve = locationCurve.Curve;
+            Line line = curve as Line;
+            XYZ ps = line.GetEndPoint(0);
+            XYZ pe = line.GetEndPoint(1);
+            XYZ pMid = ps.Add(pe).Divide(2);
 
-            //XYZ pMidEnd = pMid + normalLine * lenthInch;
+            XYZ viewDirection = doc.ActiveView.ViewDirection.Normalize();
+            XYZ direction = line.Direction.Normalize();
+            XYZ normalLine = viewDirection.CrossProduct(direction).Normalize();
 
-            //var systemType= pipe.MEPSystem;
-            
-            //using(Transaction t= new Transaction(doc, "CreatePipe"))
-            //{
-            //    t.Start();
-            //    Level level = doc.ActiveView.GenLevel;
-            //    var pipeType = pipe.GetType();
-            //    Pipe.Create(doc,pipe.MEPSystem.GetTypeId(), pipe.PipeType.Id,
-            //        doc.ActiveView.GenLevel.Id,pMid,pMidEnd);
-            //    t.Commit();
-            //}
+            double lengthMili = 5;
+            double lenthInch = UnitUtils.ConvertToInternalUnits(lengthMili, UnitTypeId.Meters);
 
-            //Plane plane = Plane.CreateByNormalAndOrigin(normalLine, pMidEnd);
+            XYZ pMidEnd = pMid + normalLine * lenthInch;
 
-            //XYZ pSPipe = curve.GetEndPoint(0);
-            //XYZ pEPipe = curve.GetEndPoint(1);
+            var systemType = pipe.MEPSystem;
 
-            //XYZ pSInter = XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pSPipe);
-            //XYZ pEInter= XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pEPipe);
+            using (Transaction t = new Transaction(doc, "CreatePipe"))
+            {
+                t.Start();
+                Level level = doc.ActiveView.GenLevel;
+                var pipeType = pipe.GetType();
+                Pipe.Create(doc, pipe.MEPSystem.GetTypeId(), pipe.PipeType.Id,
+                    doc.ActiveView.GenLevel.Id, pMid, pMidEnd);
+                t.Commit();
+            }
 
-            //using (Transaction t = new Transaction(doc, "CreatePipe"))
-            //{
-            //    t.Start();
-            //    Level level = doc.ActiveView.GenLevel;
-            //    var pipeType = pipe.GetType();
-            //    Pipe.Create(doc, pipe.MEPSystem.GetTypeId(), pipe.PipeType.Id,
-            //        doc.ActiveView.GenLevel.Id, pSInter, pEInter);
-            //    t.Commit();
-            //}
+            Plane plane = Plane.CreateByNormalAndOrigin(normalLine, pMidEnd);
+
+            XYZ pSPipe = curve.GetEndPoint(0);
+            XYZ pEPipe = curve.GetEndPoint(1);
+
+            XYZ pSInter = XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pSPipe);
+            XYZ pEInter = XYZCalculator.IntersectionPlaneByVector(plane, normalLine, pEPipe);
+
+            using (Transaction t = new Transaction(doc, "CreatePipe"))
+            {
+                t.Start();
+                Level level = doc.ActiveView.GenLevel;
+                var pipeType = pipe.GetType();
+                Pipe.Create(doc, pipe.MEPSystem.GetTypeId(), pipe.PipeType.Id,
+                    doc.ActiveView.GenLevel.Id, pSInter, pEInter);
+                t.Commit();
+            }
 
 
             return Result.Succeeded;
