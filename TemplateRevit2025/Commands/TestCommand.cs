@@ -236,6 +236,29 @@ namespace TemplateRevit2025.Commands
             }
 
 
+            Curve curve2 = null;
+            Curve curve1 = null;
+
+            SetComparisonResult compareResult=  curve1.Intersect(curve2, out IntersectionResultArray resultArray);
+
+            if (resultArray != null)
+            {
+                int count = resultArray.Size;
+                var inumertator = resultArray.GetEnumerator(); 
+                while (inumertator.MoveNext())
+                {
+                    XYZ point = ((inumertator.Current) as IntersectionResult).XYZPoint;
+                }
+                for (int i = 0; i < count; i++)
+                {
+                    XYZ pont = resultArray.get_Item(i).XYZPoint;
+                }
+            }
+           
+
+
+
+
 
             return Result.Succeeded;
         }
