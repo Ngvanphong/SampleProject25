@@ -22,76 +22,164 @@ namespace TemplateRevit2025.Commands
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc= uiDoc.Document;
 
-            var ids= uiDoc.Selection.GetElementIds();
-            ElementId id = ids.First();
+           
 
-            FamilyInstance family = doc.GetElement(id) as FamilyInstance;
-            if (family != null)
+            List<Pipe> listAllPipe = new List<Pipe> ();
+            var ids = uiDoc.Selection.GetElementIds();
+            foreach(ElementId id in ids)
             {
-                Location locationFa = family.Location;
-                LocationPoint locationPoint = locationFa as LocationPoint;
-                XYZ pointLo = locationPoint.Point;
-
-                Transform transformNew = Transform.Identity;
-                transformNew.Origin = pointLo;
-                transformNew.BasisX = new XYZ(0, 1, 0);
-                transformNew.BasisY = new XYZ(-1, 0, 0);
-                transformNew.BasisZ = transformNew.BasisX.CrossProduct(transformNew.BasisY).Normalize();
-
-                using (Transaction t = new Transaction(doc, "Rotaion"))
+                Pipe pipe = doc.GetElement(id) as Pipe;
+                if (pipe != null)
                 {
-                    t.Start();
-                    Line lineAxis = Line.CreateUnbound(pointLo, XYZ.BasisZ);
-                    ElementTransformUtils.RotateElement(doc, family.Id, lineAxis, Math.PI / 2);
-                    XYZ vector = new XYZ(500 / 304.8, 0, 0);
-                    ElementTransformUtils.MoveElement(doc, family.Id, vector);
-
-                    Plane plane = Plane.CreateByNormalAndOrigin(XYZ.BasisX, pointLo);
-                    ElementTransformUtils.MirrorElements(doc, new List<ElementId> { family.Id }, plane, false);
-                    
-                    //ElementTransformUtils.MirrorElement(doc,  family.Id , plane);
-                    //doc.Delete(family.Id);
-
-                    t.Commit();
+                    listAllPipe.Add(pipe);
                 }
-                //Transform transformRo = family.GetTransform();
             }
 
-            Pipe pipe = doc.GetElement(id) as Pipe;
 
-            LocationCurve locationPipe = pipe.Location as LocationCurve;
-            Line linePipe = locationPipe.Curve as Line;
+            Options geoOption = new Options();
 
-            double startPa = linePipe.GetEndParameter(0);
-            double endPara = linePipe.GetEndParameter(1);
-            double midPara = (startPa + endPara) / 2;
-            XYZ centerPoint = linePipe.Evaluate(midPara, false);
+            geoOption.IncludeNonVisibleObjects = false;
+            geoOption.ComputeReferences = true;
+            geoOption.DetailLevel = ViewDetailLevel.Fine;
 
+            //geoOption.View = doc.ActiveView;
 
-            Transform transformRota = Transform.CreateRotationAtPoint(XYZ.BasisZ, Math.PI / 4, centerPoint);
-            Line rotationLine = linePipe.CreateTransformed(transformRota) as Line;
-            double startParaRo = rotationLine.GetEndParameter(0);
-            double endParaRo = rotationLine.GetEndParameter(1);
+            List<Solid> listSolidOfPipe= new List<Solid>();
+            foreach(Pipe pipe in listAllPipe)
+            {
+                GeometryElement geoElment = pipe.get_Geometry(geoOption);
+                foreach(GeometryObject geoObj in geoElment)
+                {
+                    Solid solid= geoObj as Solid;
+                    if(solid != null)
+                    {
+                        listSolidOfPipe.Add(solid);
+                    }
+                }
+            }
 
-            XYZ moveVector = new XYZ(100/304.8, 0, 0);
-            Transform traslate = Transform.CreateTranslation(moveVector);
-            Line lineMove = rotationLine.CreateTransformed(traslate) as Line;
+            List<PlanarFace> listPlannarFace = new List<PlanarFace>();
+            foreach (Solid solid in listSolidOfPipe)
+            {
+                foreach(Face face in solid.Faces)
+                {
+                    PlanarFace plannarFace = face as PlanarFace;
+                    if (plannarFace!= null)
+                    {
+                        listPlannarFace.Add(plannarFace);
+                    }
+                }
+            }
 
-            //Transform reflectionTransform= Transform.CreateReflection()
+            ReferenceArray dimReferreceArray= new ReferenceArray();
+            foreach(PlanarFace planarFace in listPlannarFace)
+            {
+                Reference referrence = planarFace.Reference;
+                dimReferreceArray.Append(referrence);
+            }
 
-            Transform transformRo2 = Transform.CreateRotation(XYZ.BasisZ, Math.PI);
+            XYZ point = uiDoc.Selection.PickPoint("Pick a point");
 
-            double extend = 500 / 304.8;
-            double startParaExtend = startParaRo - extend / rotationLine.Length * (endParaRo - startParaRo);
-            double endParaExtend = endParaRo + extend / rotationLine.Length * (endParaRo - startParaRo);
-            rotationLine.MakeBound(startParaExtend, endParaExtend);
+            XYZ directionRef = listPlannarFace.First().FaceNormal;
+            Line lineDim = Line.CreateUnbound(point, directionRef);
 
-            using(Transaction t= new Transaction(doc, "ModifyPipe"))
+            using(Transaction t= new Transaction(doc, "CreateDimPipe"))
             {
                 t.Start();
-                locationPipe.Curve = rotationLine;
+                doc.Create.NewDimension(doc.ActiveView, lineDim, dimReferreceArray);
                 t.Commit();
             }
+            
+
+
+            ////GeometryElement geoElement = pipe.get_Geometry(geoOption);
+            ////List<Solid> listSolid = new List<Solid>();
+            ////List<Curve> listCurve = new List<Curve>();
+            ////foreach(GeometryObject geoObj in geoElement)
+            ////{
+            ////    Solid solid = geoObj as Solid;
+            ////    if (solid != null)
+            ////    {
+            ////        listSolid.Add(solid);
+            ////    }
+            ////    else
+            ////    {
+            ////        Curve curve = geoObj as Curve;
+            ////        if (curve != null)
+            ////        {
+            ////            listCurve.Add(curve);
+            ////        }
+            ////    }
+            ////}
+
+            ////List<PlanarFace> listPlannarFace = new List<PlanarFace>();
+            ////List<Face> listNotPlannarFace = new List<Face>();
+            ////foreach(Solid solid in listSolid)
+            ////{
+            ////    foreach (Face face in solid.Faces)
+            ////    {
+            ////        PlanarFace plannerFa = face as PlanarFace;
+            ////        if (plannerFa != null)
+            ////        {
+            ////            listPlannarFace.Add(plannerFa);
+            ////        }
+            ////        else
+            ////        {
+            ////            listNotPlannarFace.Add(face);
+            ////        }
+            ////    }
+            ////}
+
+            ////double areaFace = listNotPlannarFace.First().Area;
+            ////double areaFaceCitimet = UnitUtils.ConvertFromInternalUnits(areaFace, UnitTypeId.SquareMeters);
+
+            ////List<CurveLoop> listCurveLoopFace = new List<CurveLoop>();
+            ////foreach(PlanarFace plannar in listPlannarFace)
+            ////{
+            ////    List<CurveLoop> listCurveloopItem = plannar.GetEdgesAsCurveLoops().ToList();
+            ////    //foreach(CurveLoop cuveLo in listCurveloopItem)
+            ////    //{
+            ////    //    listCurveLoopFace.Add(cuveLo);
+            ////    //}
+            ////    listCurveLoopFace.AddRange(listCurveloopItem);
+            ////}
+            ////List<Curve> listAllCurve = new List<Curve>();
+            ////foreach(CurveLoop curveloop in listCurveLoopFace)
+            ////{
+            ////    foreach(Curve curve in curveloop)
+            ////    {
+            ////        listAllCurve.Add(curve);
+            ////    }
+            ////}
+
+
+            //GeometryElement geoElement = pipe.get_Geometry(geoOption);
+
+            //List<Solid> listSolid = new List<Solid>();
+            //foreach(GeometryObject geoObj in geoElement)
+            //{
+            //    Solid solid = geoObj as Solid;
+            //    if (solid != null)
+            //    {
+            //        listSolid.Add(solid);
+            //    }
+            //    else
+            //    {
+            //        GeometryInstance geoInst = geoObj as GeometryInstance;
+            //        if (geoInst != null)
+            //        {
+            //            GeometryElement geoElentOfFamily = geoInst.GetInstanceGeometry();
+            //            foreach(GeometryObject geObjOfFa in geoElentOfFamily)
+            //            {
+            //                Solid solidOfFa = geObjOfFa as Solid;
+            //                if (solidOfFa != null && solidOfFa.Volume > 0.00001)
+            //                {
+            //                    listSolid.Add(solidOfFa);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
 
             return Result.Succeeded;
