@@ -32,8 +32,6 @@ namespace TemplateRevit2025.Commands
                 LocationPoint locationPoint = locationFa as LocationPoint;
                 XYZ pointLo = locationPoint.Point;
 
-
-
                 Transform transformNew = Transform.Identity;
                 transformNew.Origin = pointLo;
                 transformNew.BasisX = new XYZ(0, 1, 0);
@@ -50,19 +48,14 @@ namespace TemplateRevit2025.Commands
 
                     Plane plane = Plane.CreateByNormalAndOrigin(XYZ.BasisX, pointLo);
                     ElementTransformUtils.MirrorElements(doc, new List<ElementId> { family.Id }, plane, false);
+                    
                     //ElementTransformUtils.MirrorElement(doc,  family.Id , plane);
                     //doc.Delete(family.Id);
-
 
                     t.Commit();
                 }
                 //Transform transformRo = family.GetTransform();
             }
-
-
-
-
-
 
             Pipe pipe = doc.GetElement(id) as Pipe;
 
