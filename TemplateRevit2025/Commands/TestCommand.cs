@@ -5,6 +5,8 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using Autodesk.Windows;
+using Microsoft.Extensions.Logging;
+using System.Configuration;
 using System.Data;
 using System.Security.Cryptography;
 using TemplateRevit2025.Interfaces;
@@ -96,12 +98,44 @@ namespace TemplateRevit2025.Commands
                 }
             }
 
-            using (Transaction t1= new Transaction(doc, "CreateConnect"))
+            //Duct newDuct = null;
+            
+            ElementId idLevel = duct.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
+            Level level = doc.GetElement(idLevel) as Level;
+            double length = 600 / 304.8;
+            XYZ directionTargetConnect = connectorTarget.CoordinateSystem.BasisZ.Normalize();
+            XYZ point600 = connectorTarget.Origin + directionTargetConnect * length;
+
+            //using (Transaction t1 = new Transaction(doc, "CreateDuct"))
+            //{
+            //    t1.Start();
+
+            //    var type = duct.DuctType;
+            //    newDuct = Duct.Create(doc, type.Id, idLevel, connectorTarget, point600);
+            //    t1.Commit();
+            //}
+            // connect two 
+            //var interator = newDuct.ConnectorManager.Connectors.GetEnumerator();
+            //interator.Reset();
+            //interator.MoveNext();
+            //interator.MoveNext();
+            //Connector endConnectNewDuct = interator.Current as Connector;
+            using (Transaction t1 = new Transaction(doc, "CreateDuct2"))
             {
                 t1.Start();
-                ductConnect.ConnectTo(connectorTarget);
+                doc.Create.NewTransitionFitting(ductConnect, connectorTarget);
+                
                 t1.Commit();
             }
+
+            ConnectorSet connectorset = duct.ConnectorManager.Connectors;
+            
+            //using (Transaction t1 = new Transaction(doc, "Trasitrion"))
+            //{
+            //    t1.Start();
+            //    ductConnect.ConnectTo(connectorTarget);
+            //    t1.Commit();
+            //}
 
 
             return Result.Succeeded;
