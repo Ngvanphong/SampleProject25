@@ -3,6 +3,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using Autodesk.Windows;
 using System.Security.Cryptography;
 using TemplateRevit2025.Interfaces;
 using TemplateRevit2025.Model.Test;
@@ -22,165 +23,87 @@ namespace TemplateRevit2025.Commands
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc= uiDoc.Document;
 
-           
-
-            List<Pipe> listAllPipe = new List<Pipe> ();
-            var ids = uiDoc.Selection.GetElementIds();
+            IEnumerable<ElementId> ids = uiDoc.Selection.GetElementIds();
+            List<Wall> listWall = new List<Wall>();
+            
             foreach(ElementId id in ids)
             {
-                Pipe pipe = doc.GetElement(id) as Pipe;
-                if (pipe != null)
+                Wall item = doc.GetElement(id) as Wall;
+                if (item != null)
                 {
-                    listAllPipe.Add(pipe);
+                    Location locationWall = item.Location;
+                    if(locationWall!=null && locationWall is LocationCurve)
+                    {
+                        LocationCurve locationCurve = locationWall as LocationCurve;
+                        if(locationCurve!=null && locationCurve.Curve is Line)
+                        {
+                            listWall.Add(item);
+                        }
+                    }
+                    
                 }
             }
 
-
-            Options geoOption = new Options();
-
-            geoOption.IncludeNonVisibleObjects = false;
-            geoOption.ComputeReferences = true;
-            geoOption.DetailLevel = ViewDetailLevel.Fine;
-
-            //geoOption.View = doc.ActiveView;
-
-            List<Solid> listSolidOfPipe= new List<Solid>();
-            foreach(Pipe pipe in listAllPipe)
+            Options options = new Options();
+            options.IncludeNonVisibleObjects = false;
+            options.DetailLevel = ViewDetailLevel.Fine;
+            options.ComputeReferences = true;
+            foreach (Wall wall in listWall)
             {
-                GeometryElement geoElment = pipe.get_Geometry(geoOption);
-                foreach(GeometryObject geoObj in geoElment)
+                List<PlanarFace> listPlanarFace = new List<PlanarFace>();
+                GeometryElement geoElemnt = wall.get_Geometry(options);
+                XYZ wallOrientation = wall.Orientation.Normalize();
+                foreach (GeometryObject geoObj in geoElemnt)
                 {
-                    Solid solid= geoObj as Solid;
-                    if(solid != null)
+                    Solid solid = geoObj as Solid;
+                    if (solid != null && solid.Volume > 0.000001)
                     {
-                        listSolidOfPipe.Add(solid);
+                        foreach (Face face in solid.Faces)
+                        {
+                            if (face is PlanarFace plannarFace)
+                            {
+                                XYZ noramlPlan = plannarFace.FaceNormal.Normalize();
+                                double dotProduct1 = wallOrientation.DotProduct(noramlPlan);
+                                if (Math.Abs(dotProduct1) < 0.00001)
+                                {
+                                    double dotProduct2 = noramlPlan.DotProduct(XYZ.BasisZ);
+                                    if (Math.Abs(dotProduct2) < 0.00001)
+                                    {
+                                        listPlanarFace.Add(plannarFace);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
 
-            List<PlanarFace> listPlannarFace = new List<PlanarFace>();
-            foreach (Solid solid in listSolidOfPipe)
-            {
-                foreach(Face face in solid.Faces)
+                ReferenceArray dimRef = new ReferenceArray();
+                foreach (PlanarFace planar in listPlanarFace) dimRef.Append(planar.Reference);
+
+
+                LocationCurve locaitonCurve = wall.Location as LocationCurve;
+
+                Curve curve = locaitonCurve.Curve;
+                Line lineWall = curve as Line;
+                XYZ direcitonWall = lineWall.Direction.Normalize();
+
+                XYZ firstPoint = curve.GetEndPoint(0);
+                XYZ vectorMove = wallOrientation * 1000 / 304.8;
+                XYZ movePoint = firstPoint + vectorMove;
+                Line linePutDim = Line.CreateUnbound(movePoint, direcitonWall);
+
+                using (Transaction t = new Transaction(doc, "CreateDim"))
                 {
-                    PlanarFace plannarFace = face as PlanarFace;
-                    if (plannarFace!= null)
-                    {
-                        listPlannarFace.Add(plannarFace);
-                    }
+                    t.Start();
+                    doc.Create.NewDimension(doc.ActiveView, linePutDim, dimRef);
+                    t.Commit();
                 }
+
+
+                //FamilyInstance door = null;
+                //Reference doorRef = door.GetReferenceByName("ffff");
+                //List<Reference> refDoor2 = door.GetReferences(FamilyInstanceReferenceType.CenterLeftRight).ToList();
             }
-
-            ReferenceArray dimReferreceArray= new ReferenceArray();
-            foreach(PlanarFace planarFace in listPlannarFace)
-            {
-                Reference referrence = planarFace.Reference;
-                dimReferreceArray.Append(referrence);
-            }
-
-            XYZ point = uiDoc.Selection.PickPoint("Pick a point");
-
-            XYZ directionRef = listPlannarFace.First().FaceNormal;
-            Line lineDim = Line.CreateUnbound(point, directionRef);
-
-            using(Transaction t= new Transaction(doc, "CreateDimPipe"))
-            {
-                t.Start();
-                doc.Create.NewDimension(doc.ActiveView, lineDim, dimReferreceArray);
-                t.Commit();
-            }
-            
-
-
-            ////GeometryElement geoElement = pipe.get_Geometry(geoOption);
-            ////List<Solid> listSolid = new List<Solid>();
-            ////List<Curve> listCurve = new List<Curve>();
-            ////foreach(GeometryObject geoObj in geoElement)
-            ////{
-            ////    Solid solid = geoObj as Solid;
-            ////    if (solid != null)
-            ////    {
-            ////        listSolid.Add(solid);
-            ////    }
-            ////    else
-            ////    {
-            ////        Curve curve = geoObj as Curve;
-            ////        if (curve != null)
-            ////        {
-            ////            listCurve.Add(curve);
-            ////        }
-            ////    }
-            ////}
-
-            ////List<PlanarFace> listPlannarFace = new List<PlanarFace>();
-            ////List<Face> listNotPlannarFace = new List<Face>();
-            ////foreach(Solid solid in listSolid)
-            ////{
-            ////    foreach (Face face in solid.Faces)
-            ////    {
-            ////        PlanarFace plannerFa = face as PlanarFace;
-            ////        if (plannerFa != null)
-            ////        {
-            ////            listPlannarFace.Add(plannerFa);
-            ////        }
-            ////        else
-            ////        {
-            ////            listNotPlannarFace.Add(face);
-            ////        }
-            ////    }
-            ////}
-
-            ////double areaFace = listNotPlannarFace.First().Area;
-            ////double areaFaceCitimet = UnitUtils.ConvertFromInternalUnits(areaFace, UnitTypeId.SquareMeters);
-
-            ////List<CurveLoop> listCurveLoopFace = new List<CurveLoop>();
-            ////foreach(PlanarFace plannar in listPlannarFace)
-            ////{
-            ////    List<CurveLoop> listCurveloopItem = plannar.GetEdgesAsCurveLoops().ToList();
-            ////    //foreach(CurveLoop cuveLo in listCurveloopItem)
-            ////    //{
-            ////    //    listCurveLoopFace.Add(cuveLo);
-            ////    //}
-            ////    listCurveLoopFace.AddRange(listCurveloopItem);
-            ////}
-            ////List<Curve> listAllCurve = new List<Curve>();
-            ////foreach(CurveLoop curveloop in listCurveLoopFace)
-            ////{
-            ////    foreach(Curve curve in curveloop)
-            ////    {
-            ////        listAllCurve.Add(curve);
-            ////    }
-            ////}
-
-
-            //GeometryElement geoElement = pipe.get_Geometry(geoOption);
-
-            //List<Solid> listSolid = new List<Solid>();
-            //foreach(GeometryObject geoObj in geoElement)
-            //{
-            //    Solid solid = geoObj as Solid;
-            //    if (solid != null)
-            //    {
-            //        listSolid.Add(solid);
-            //    }
-            //    else
-            //    {
-            //        GeometryInstance geoInst = geoObj as GeometryInstance;
-            //        if (geoInst != null)
-            //        {
-            //            GeometryElement geoElentOfFamily = geoInst.GetInstanceGeometry();
-            //            foreach(GeometryObject geObjOfFa in geoElentOfFamily)
-            //            {
-            //                Solid solidOfFa = geObjOfFa as Solid;
-            //                if (solidOfFa != null && solidOfFa.Volume > 0.00001)
-            //                {
-            //                    listSolid.Add(solidOfFa);
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
 
             return Result.Succeeded;
         }
