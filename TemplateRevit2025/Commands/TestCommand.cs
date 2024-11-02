@@ -1,9 +1,11 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using Autodesk.Windows;
+using System.Data;
 using System.Security.Cryptography;
 using TemplateRevit2025.Interfaces;
 using TemplateRevit2025.Model.Test;
@@ -23,89 +25,121 @@ namespace TemplateRevit2025.Commands
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc= uiDoc.Document;
 
-            IEnumerable<ElementId> ids = uiDoc.Selection.GetElementIds();
-            List<Wall> listWall = new List<Wall>();
+            FamilyInstance fcu = null;
+            try
+            {
+                var refFCU = uiDoc.Selection.PickObject(ObjectType.Element, new FamilyInstanceFilter(), "Pick FCU");
+                fcu = doc.GetElement(refFCU) as FamilyInstance;
+            }
+            catch
+            {
+                return Result.Succeeded;
+            }
+
+            Duct duct = null;
+            try
+            {
+                var refDuct = uiDoc.Selection.PickObject(ObjectType.Element, new DuctFitler(), "Pick Duct");
+                duct = doc.GetElement(refDuct) as Duct;
+            }
+            catch
+            {
+                return Result.Succeeded;
+            }
+
+            XYZ connectorLocation = null;
+            try
+            {
+                connectorLocation = uiDoc.Selection.PickPoint("Pick connector");
+            }
+            catch
+            {
+                return Result.Succeeded;
+            }
+
             
-            foreach(ElementId id in ids)
-            {
-                Wall item = doc.GetElement(id) as Wall;
-                if (item != null)
-                {
-                    Location locationWall = item.Location;
-                    if(locationWall!=null && locationWall is LocationCurve)
-                    {
-                        LocationCurve locationCurve = locationWall as LocationCurve;
-                        if(locationCurve!=null && locationCurve.Curve is Line)
-                        {
-                            listWall.Add(item);
-                        }
-                    }
-                    
-                }
-            }
+            MEPModel mepModel = fcu.MEPModel;
+            ConnectorManager connectorManager = mepModel.ConnectorManager;
+            double disntaceMin = 100000000;
+            Connector connectorTarget = null;
+            ConnectorSet connectorSet = connectorManager.Connectors;
 
-            Options options = new Options();
-            options.IncludeNonVisibleObjects = false;
-            options.DetailLevel = ViewDetailLevel.Fine;
-            options.ComputeReferences = true;
-            foreach (Wall wall in listWall)
+            foreach (Connector connector in connectorSet)
             {
-                List<PlanarFace> listPlanarFace = new List<PlanarFace>();
-                GeometryElement geoElemnt = wall.get_Geometry(options);
-                XYZ wallOrientation = wall.Orientation.Normalize();
-                foreach (GeometryObject geoObj in geoElemnt)
+                XYZ locationItem = connector.Origin;
+                if (locationItem != null)
                 {
-                    Solid solid = geoObj as Solid;
-                    if (solid != null && solid.Volume > 0.000001)
+                    double d = locationItem.DistanceTo(connectorLocation);
+                    if (d < disntaceMin)
                     {
-                        foreach (Face face in solid.Faces)
-                        {
-                            if (face is PlanarFace plannarFace)
-                            {
-                                XYZ noramlPlan = plannarFace.FaceNormal.Normalize();
-                                double dotProduct1 = wallOrientation.DotProduct(noramlPlan);
-                                if (Math.Abs(dotProduct1) < 0.00001)
-                                {
-                                    double dotProduct2 = noramlPlan.DotProduct(XYZ.BasisZ);
-                                    if (Math.Abs(dotProduct2) < 0.00001)
-                                    {
-                                        listPlanarFace.Add(plannarFace);
-                                    }
-                                }
-                            }
-                        }
+                        disntaceMin = d;
+                        connectorTarget = connector;
                     }
                 }
 
-                ReferenceArray dimRef = new ReferenceArray();
-                foreach (PlanarFace planar in listPlanarFace) dimRef.Append(planar.Reference);
-
-
-                LocationCurve locaitonCurve = wall.Location as LocationCurve;
-
-                Curve curve = locaitonCurve.Curve;
-                Line lineWall = curve as Line;
-                XYZ direcitonWall = lineWall.Direction.Normalize();
-
-                XYZ firstPoint = curve.GetEndPoint(0);
-                XYZ vectorMove = wallOrientation * 1000 / 304.8;
-                XYZ movePoint = firstPoint + vectorMove;
-                Line linePutDim = Line.CreateUnbound(movePoint, direcitonWall);
-
-                using (Transaction t = new Transaction(doc, "CreateDim"))
-                {
-                    t.Start();
-                    doc.Create.NewDimension(doc.ActiveView, linePutDim, dimRef);
-                    t.Commit();
-                }
-
-
-                //FamilyInstance door = null;
-                //Reference doorRef = door.GetReferenceByName("ffff");
-                //List<Reference> refDoor2 = door.GetReferences(FamilyInstanceReferenceType.CenterLeftRight).ToList();
             }
+            Connector ductConnect = null;
+            ConnectorManager ductConnectorManager = duct.ConnectorManager;
+            double distMin2 = 10000000;
+            ConnectorSet connectSetDuct = ductConnectorManager.Connectors;
+            foreach (Connector item in connectSetDuct)
+            {
+                XYZ locationItem = item.Origin;
+                if (locationItem != null)
+                {
+                    double d = locationItem.DistanceTo(connectorTarget.Origin);
+                    if (d < distMin2)
+                    {
+                        distMin2 = d;
+                        ductConnect = item;
+                    }
+                }
+            }
+
+            using (Transaction t1= new Transaction(doc, "CreateConnect"))
+            {
+                t1.Start();
+                ductConnect.ConnectTo(connectorTarget);
+                t1.Commit();
+            }
+
 
             return Result.Succeeded;
+        }
+    }
+
+    class DuctFitler : ISelectionFilter
+    {
+        public bool AllowElement(Element elem)
+        {
+            if (elem.Category != null && elem.Category.Id.Value == (long)BuiltInCategory.OST_DuctCurves)
+            {
+                return true;
+            }
+            return false;
+                
+        }
+
+        public bool AllowReference(Reference reference, XYZ position)
+        {
+            return true;
+        }
+    }
+
+    class FamilyInstanceFilter : ISelectionFilter
+    {
+        public bool AllowElement(Element elem)
+        {
+            if(elem is FamilyInstance)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool AllowReference(Reference reference, XYZ position)
+        {
+            return true;
         }
     }
 
