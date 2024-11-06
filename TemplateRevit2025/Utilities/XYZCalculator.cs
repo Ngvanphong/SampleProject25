@@ -15,7 +15,7 @@ namespace TemplateRevit2025.Utilities
             XYZ normalPlane = plane.Normal;
 
             double dotPlaneWithFolowVector = normalPlane.Normalize().DotProduct(followVector);
-            if (dotPlaneWithFolowVector < 0.0000001)
+            if (Math.Abs(dotPlaneWithFolowVector) < 0.000000000001)
             {
                 return null;
             }

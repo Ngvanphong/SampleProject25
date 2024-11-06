@@ -27,115 +27,84 @@ namespace TemplateRevit2025.Commands
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc= uiDoc.Document;
 
-            FamilyInstance fcu = null;
-            try
+            Pipe mainPipe = null;
+            Reference mainRef = uiDoc.Selection.PickObject(ObjectType.Element, "Pick main pipe");
+            mainPipe = doc.GetElement(mainRef) as Pipe;
+
+            Pipe subPipe = null;
+            Reference subRefRef = uiDoc.Selection.PickObject(ObjectType.Element, "Pick sub pipe");
+            subPipe = doc.GetElement(subRefRef) as Pipe;
+
+            double angle = 10 * Math.PI/180;
+
+            LocationCurve locationCurve = mainPipe.Location as LocationCurve;
+            Line lineMain = locationCurve.Curve as Line;
+            XYZ start = locationCurve.Curve.GetEndPoint(0);
+            XYZ end = locationCurve.Curve.GetEndPoint(1);
+            
+            XYZ pMainBot = null;
+            XYZ pMainTop = null;
+            if(start.Z < end.Z)
             {
-                var refFCU = uiDoc.Selection.PickObject(ObjectType.Element, new FamilyInstanceFilter(), "Pick FCU");
-                fcu = doc.GetElement(refFCU) as FamilyInstance;
+                pMainBot = start;
+                pMainTop = end;
             }
-            catch
+            else
             {
-                return Result.Succeeded;
+                pMainBot = end;
+                pMainTop= start;
+            }
+            
+            XYZ directionMain= pMainBot.Subtract(pMainTop).Normalize();
+
+            XYZ vectorZMain = directionMain.CrossProduct(XYZ.BasisZ).Normalize();
+
+            LocationCurve subLocation = subPipe.Location as LocationCurve;
+            Line subLine = subLocation.Curve as Line;
+            XYZ diretionSubLine = subLine.Direction.Normalize();
+
+            XYZ centerCheck = subLine.GetEndPoint(0).Add(subLine.GetEndPoint(1)).Divide(2);
+            XYZ vectorCheck = centerCheck.Subtract(pMainBot).Normalize();
+
+            double dotZVectorCheck = vectorCheck.DotProduct(vectorZMain);
+            XYZ vectorZMainTrue = null;
+            XYZ axisRotae15 = null;
+            if(dotZVectorCheck> 0.0001)
+            {
+                vectorZMainTrue = vectorZMain;
+                axisRotae15 = directionMain;
+            }
+            else
+            {
+                vectorZMainTrue = -vectorZMain;
+                axisRotae15 = -directionMain;
             }
 
-            Duct duct = null;
-            try
-            {
-                var refDuct = uiDoc.Selection.PickObject(ObjectType.Element, new DuctFitler(), "Pick Duct");
-                duct = doc.GetElement(refDuct) as Duct;
-            }
-            catch
-            {
-                return Result.Succeeded;
-            }
+            Transform transformRotateTru15 = Transform.CreateRotation(axisRotae15, -angle);
+            XYZ vectorRotate15 = transformRotateTru15.OfVector(vectorZMainTrue);
 
-            XYZ connectorLocation = null;
-            try
-            {
-                connectorLocation = uiDoc.Selection.PickPoint("Pick connector");
-            }
-            catch
-            {
-                return Result.Succeeded;
-            }
+
+
+            XYZ normalPlane= directionMain.CrossProduct(vectorRotate15).Normalize();
+
+            Plane planeRote15 = Plane.CreateByNormalAndOrigin(normalPlane, pMainBot);
 
             
-            MEPModel mepModel = fcu.MEPModel;
-            ConnectorManager connectorManager = mepModel.ConnectorManager;
-            double disntaceMin = 100000000;
-            Connector connectorTarget = null;
-            ConnectorSet connectorSet = connectorManager.Connectors;
+            XYZ startSub = subLine.GetEndPoint(0);
+            XYZ intersectPoint = XYZCalculator.IntersectionPlaneByVector(planeRote15, diretionSubLine, startSub);
 
-            foreach (Connector connector in connectorSet)
-            {
-                XYZ locationItem = connector.Origin;
-                if (locationItem != null)
-                {
-                    double d = locationItem.DistanceTo(connectorLocation);
-                    if (d < disntaceMin)
-                    {
-                        disntaceMin = d;
-                        connectorTarget = connector;
-                    }
-                }
+            XYZ axisPlane = normalPlane;
+            Transform transformTru45 = Transform.CreateRotation(axisPlane, -Math.PI / 4);
+            XYZ vectorRote45 = transformTru45.OfVector(directionMain).Normalize();
 
-            }
-            Connector ductConnect = null;
-            ConnectorManager ductConnectorManager = duct.ConnectorManager;
-            double distMin2 = 10000000;
-            ConnectorSet connectSetDuct = ductConnectorManager.Connectors;
-            foreach (Connector item in connectSetDuct)
-            {
-                XYZ locationItem = item.Origin;
-                if (locationItem != null)
-                {
-                    double d = locationItem.DistanceTo(connectorTarget.Origin);
-                    if (d < distMin2)
-                    {
-                        distMin2 = d;
-                        ductConnect = item;
-                    }
-                }
-            }
+            double extend = 300000/304.8;
+            XYZ p1 = intersectPoint - vectorRote45 * extend;
+            XYZ p2= intersectPoint + vectorRote45 * extend;
+            Line lineInterct= Line.CreateBound(p1, p2);
 
-            //Duct newDuct = null;
-            
-            ElementId idLevel = duct.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
-            Level level = doc.GetElement(idLevel) as Level;
-            double length = 600 / 304.8;
-            XYZ directionTargetConnect = connectorTarget.CoordinateSystem.BasisZ.Normalize();
-            XYZ point600 = connectorTarget.Origin + directionTargetConnect * length;
 
-            //using (Transaction t1 = new Transaction(doc, "CreateDuct"))
-            //{
-            //    t1.Start();
+            var intersectResult= lineMain.Intersect(lineInterct, out IntersectionResultArray resultInter);
 
-            //    var type = duct.DuctType;
-            //    newDuct = Duct.Create(doc, type.Id, idLevel, connectorTarget, point600);
-            //    t1.Commit();
-            //}
-            // connect two 
-            //var interator = newDuct.ConnectorManager.Connectors.GetEnumerator();
-            //interator.Reset();
-            //interator.MoveNext();
-            //interator.MoveNext();
-            //Connector endConnectNewDuct = interator.Current as Connector;
-            using (Transaction t1 = new Transaction(doc, "CreateDuct2"))
-            {
-                t1.Start();
-                doc.Create.NewTransitionFitting(ductConnect, connectorTarget);
-                
-                t1.Commit();
-            }
-
-            ConnectorSet connectorset = duct.ConnectorManager.Connectors;
-            
-            //using (Transaction t1 = new Transaction(doc, "Trasitrion"))
-            //{
-            //    t1.Start();
-            //    ductConnect.ConnectTo(connectorTarget);
-            //    t1.Commit();
-            //}
 
 
             return Result.Succeeded;
