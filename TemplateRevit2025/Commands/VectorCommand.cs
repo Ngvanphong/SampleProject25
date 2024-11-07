@@ -19,6 +19,21 @@ namespace TemplateRevit2025.Commands
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            List<(int, string)> listAllColumnParamter = new System.Collections.Generic.List<(int, string)>();
+
+            listAllColumnParamter.Add((1, "Para 1"));
+            listAllColumnParamter.Add((2, "Para 2"));
+            listAllColumnParamter.Add((4, "Para 3"));
+
+            foreach((int,string) columnPara in listAllColumnParamter)
+            {
+                int indexCol = columnPara.Item1;
+                string namePara= columnPara.Item2;
+
+            }
+
+
+
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc= uiDoc.Document;
 
