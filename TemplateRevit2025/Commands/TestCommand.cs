@@ -23,9 +23,8 @@ namespace TemplateRevit2025.Commands
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
-            Document doc= uiDoc.Document;
+            Document doc = uiDoc.Document;
 
 
 
