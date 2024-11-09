@@ -53,7 +53,7 @@ namespace TemplateRevit2025.Model.Test
     {
         private Dictionary<string , object> dictProperties= new Dictionary<string , object>();
 
-        public Dictionary<string,int> dictParaIndexCol= new Dictionary<string, int>; 
+        public Dictionary<string,int> dictParaIndexCol= new Dictionary<string, int>(); 
         public void Add(int indexCol, string namePara)
         {
             dictParaIndexCol.Add(namePara,indexCol);
