@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Electrical;
+using Autodesk.Revit.DB.Architecture;
 
 namespace TemplateRevit2025.Commands
 {
@@ -91,29 +92,136 @@ namespace TemplateRevit2025.Commands
 
             // doc.Create.NewTeeFitting()
 
-            DuctSettings ductSetting = DuctSettings.GetDuctSettings(doc);
-            ductSetting.FittingAngleUsage = FittingAngleUsage.UseAnAngleIncrement;
-            //var parameters = ductSetting.Parameters;
-            ductSetting.SetSpecificFittingAngleStatus(60, false);
+            //DuctSettings ductSetting = DuctSettings.GetDuctSettings(doc);
+            //ductSetting.FittingAngleUsage = FittingAngleUsage.UseAnAngleIncrement;
+            ////var parameters = ductSetting.Parameters;
+            //ductSetting.SetSpecificFittingAngleStatus(60, false);
 
-            DuctSizeSettings ductSizeSettting = DuctSizeSettings.GetDuctSizeSettings(doc);
-            MEPSize mepSize = new MEPSize(3000/304.8,2950/304.8,3050/304.8,true,true);
-            ductSizeSettting.AddSize(DuctShape.Rectangular, mepSize);
-            ductSizeSettting.AddSize(DuctShape.Round, mepSize);
+            //DuctSizeSettings ductSizeSettting = DuctSizeSettings.GetDuctSizeSettings(doc);
+            //MEPSize mepSize = new MEPSize(3000/304.8,2950/304.8,3050/304.8,true,true);
+            //ductSizeSettting.AddSize(DuctShape.Rectangular, mepSize);
+            //ductSizeSettting.AddSize(DuctShape.Round, mepSize);
+
+            //PipeSettings pipeSetting = PipeSettings.GetPipeSettings(doc);
 
 
-            PipeSettings pipeSetting = PipeSettings.GetPipeSettings(doc);
+            //IEnumerable<Segment> allSegment = new FilteredElementCollector(doc).OfClass(typeof(Segment)).Cast<Segment>();
+
+            //foreach(Segment segment in allSegment)
+            //{
+            //    Material material =doc.GetElement( segment.MaterialId) as Material;
+            //    var listSize = segment.GetSizes();
+            //    //MEPSize segmentSize= new MEPSize()
+            //    //segment.AddSize()
+            //}
 
 
-            IEnumerable<Segment> allSegment = new FilteredElementCollector(doc).OfClass(typeof(Segment)).Cast<Segment>();
-
-            foreach(Segment segment in allSegment)
+            ElectricalSetting electricalSetting = ElectricalSetting.GetElectricalSettings(doc);
+            DistributionSysTypeSet distributeSystems = electricalSetting.DistributionSysTypes;
+            foreach(DistributionSysType system in distributeSystems)
             {
-                Material material =doc.GetElement( segment.MaterialId) as Material;
-                var listSize = segment.GetSizes();
-                //MEPSize segmentSize= new MEPSize()
-                //segment.AddSize()
+                
             }
+
+            VoltageTypeSet voltageSet = electricalSetting.VoltageTypes;
+            VoltageType vot120 = null;
+            foreach (VoltageType voltageType in voltageSet)
+            {
+                if (Math.Abs(voltageType.ActualValue - 120)<0.000001)
+                {
+                    vot120 = voltageType;
+                    break;
+                }
+            }
+            //electricalSetting.AddVoltageType("150", 150, 140, 160);
+
+            //electricalSetting.RemoveVoltageType(vot120);
+
+            //IEnumerable<TemperatureRatingType> temperateRatingType= new FilteredElementCollector(doc)
+            //    .OfClass(typeof(TemperatureRatingType)).Cast<TemperatureRatingType>();
+
+            //TemperatureRatingType temperate55 = null;
+            //foreach(TemperatureRatingType ratingType in temperateRatingType)
+            //{
+            //    if(ratingType.Name== "55")
+            //    {
+            //        temperate55 = ratingType;
+            //        break;
+            //    }
+            //}
+
+
+            WireMaterialTypeSet wireMaterialSet = doc.Settings.ElectricalSetting.WireMaterialTypes;
+
+            WireMaterialType mateialAluminium = null;
+            foreach(WireMaterialType wireMat in wireMaterialSet)
+            {
+                if (wireMat.Name == "Aluminium")
+                {
+                    mateialAluminium = wireMat;
+                    break;
+                }
+            }
+
+            TemperatureRatingTypeSet temperateSet = mateialAluminium.TemperatureRatings;
+            TemperatureRatingType temperateType55 = null;
+            foreach (TemperatureRatingType tempItem in temperateSet)
+            {
+                if (tempItem.Name == "55")
+                {
+                    temperateType55 = tempItem;
+                    break;
+                }
+            }
+
+            InsulationTypeSet insulationSet = temperateType55.InsulationTypes;
+            InsulationType insulateTT = null;
+            foreach(InsulationType insulateItem in insulationSet)
+            {
+                if (insulateItem.Name == "TT")
+                {
+                    insulateTT = insulateItem;
+                    break;
+                }
+            }
+
+            WireSizeSet wireSizeSet = temperateType55.WireSizes;
+            WireSize wireSize99 = null;
+            foreach(WireSize wireSizeItem in wireSizeSet)
+            {
+                if (wireSizeItem.Ampacity == 99)
+                {
+                    wireSize99 = wireSizeItem;
+                    break;
+                }
+            }
+
+            CableTraySizes cableTraySize = CableTraySizes.GetCableTraySizes(doc);
+            DuctSizeSettings ductSizeStting = DuctSizeSettings.GetDuctSizeSettings(doc);
+            IEnumerator<KeyValuePair<DuctShape,DuctSizes>> ductSizeIterator= ductSizeStting.GetEnumerator();
+
+            DuctSizes sizeRectangle = null;
+            ductSizeIterator.Reset();
+            while (ductSizeIterator.MoveNext())
+            {
+                KeyValuePair<DuctShape, DuctSizes> keyValue = ductSizeIterator.Current;
+                if(keyValue.Key== DuctShape.Rectangular)
+                {
+                    sizeRectangle = keyValue.Value;
+                    break;
+                }
+
+            }
+            
+
+           
+            
+
+
+
+            
+
+
 
 
 
