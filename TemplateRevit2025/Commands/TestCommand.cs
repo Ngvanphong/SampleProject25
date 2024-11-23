@@ -5,6 +5,7 @@ using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Architecture;
+using Autodesk.Revit.DB.Structure;
 
 namespace TemplateRevit2025.Commands
 {
@@ -16,209 +17,118 @@ namespace TemplateRevit2025.Commands
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            /*
-             * Duct
-             */
-
-            // ve duct
-
-            // duct type
-            //IEnumerable<DuctType> listDuctType = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_DuctCurves)
-            //     .WhereElementIsElementType().OfClass(typeof(DuctType)).Cast<DuctType>();
-
-            //IEnumerable<DuctType> listDuctTypeV = listDuctType.Where(x => x.Shape == ConnectorProfileType.Rectangular);
-
-            //IEnumerable<DuctType> listDuctTpeT= listDuctType.Where(x => x.Shape == ConnectorProfileType.Round);
-
-            //DuctType ductTypeV = listDuctTypeV.FirstOrDefault();
-
-            //Duct duct1 = null;
-            //ConnectorManager connectorManager = duct1.ConnectorManager;
-            //ConnectorSet connectorSet = connectorManager.Connectors;
-
-            //Connector startConnector = null;
-            //Connector endConnector = null;
-            //foreach(Connector connector in connectorSet)
-            //{
-            //    if (startConnector == null) startConnector = connector;
-            //    else endConnector = connector;
-            //}
-
-            //IEnumerable<MEPSystemType> listMEPSystemType = new FilteredElementCollector(doc).OfClass(typeof(MEPSystemType))
-            //   .Cast<MEPSystemType>();
-           
-
-            //MEPSystemType returnAir = listMEPSystemType.FirstOrDefault(x=>x.SystemClassification == MEPSystemClassification.ReturnAir);
-
-            //IEnumerable<MechanicalSystemType> ductSystems= new FilteredElementCollector(doc).OfClass(typeof(MechanicalSystemType))
-            //   .Cast<MechanicalSystemType>();
-            //MechanicalSystemType ductReturnAir = ductSystems.FirstOrDefault(x => x.SystemClassification == MEPSystemClassification.ReturnAir);
-
-            //IEnumerable<PipingSystemType> pipingSystems = new FilteredElementCollector(doc).OfClass(typeof(PipingSystemType))
-            //   .Cast<PipingSystemType>();
-            //PipingSystemType pipeSanitary = pipingSystems.FirstOrDefault(x => x.SystemClassification == MEPSystemClassification.Sanitary);
-
-
-            //IEnumerable<MEPSystem> listMepSystem = new FilteredElementCollector(doc).OfClass(typeof(MEPSystem))
-            //   .Cast<MEPSystem>(); // he thong system ket noi voi nhau
-
-            ////Duct newDuct = Duct.Create(doc, ductTypeV.Id, doc.ActiveView.GenLevel.Id,);
-            ////Pipe newPipe= Pipe.Create(doc, )
-
-            //// duct fitting
-
-            ////doc.Create.NewFlexDuct()
-            ////doc.Create.NewFamilyInstance()
-
-
-            ////Wire newWrite = Wire.Create(doc, ElementId.InvalidElementId, doc.ActiveView, WiringType.Arc,);
-
-            ////CableTray cableTrace = CableTray.Create();
-
-
-            //CableTray cableTray = null;
-            //ConnectorManager cableTrayConnectorManager = cableTray.ConnectorManager;
-            //ConnectorSet cableTrayConnectorSet = cableTrayConnectorManager.Connectors;
-            //foreach(Connector connector in cableTrayConnectorSet)
-            //{
-
-            //}
-
-            ////ConnectorElement connectorElement= ConnectorElement.CreateConduitConnector()
-            //IEnumerable<ConduitType> conduitTypes = new FilteredElementCollector(doc).OfClass(typeof(ConduitType))
-            //    .Cast<ConduitType>();
-
-            //Conduit conduit = Conduit.Create(doc, conduitTypes.First().Id,);
-
-            // doc.Create.NewTeeFitting()
-
-            //DuctSettings ductSetting = DuctSettings.GetDuctSettings(doc);
-            //ductSetting.FittingAngleUsage = FittingAngleUsage.UseAnAngleIncrement;
-            ////var parameters = ductSetting.Parameters;
-            //ductSetting.SetSpecificFittingAngleStatus(60, false);
-
-            //DuctSizeSettings ductSizeSettting = DuctSizeSettings.GetDuctSizeSettings(doc);
-            //MEPSize mepSize = new MEPSize(3000/304.8,2950/304.8,3050/304.8,true,true);
-            //ductSizeSettting.AddSize(DuctShape.Rectangular, mepSize);
-            //ductSizeSettting.AddSize(DuctShape.Round, mepSize);
-
-            //PipeSettings pipeSetting = PipeSettings.GetPipeSettings(doc);
-
-
-            //IEnumerable<Segment> allSegment = new FilteredElementCollector(doc).OfClass(typeof(Segment)).Cast<Segment>();
-
-            //foreach(Segment segment in allSegment)
-            //{
-            //    Material material =doc.GetElement( segment.MaterialId) as Material;
-            //    var listSize = segment.GetSizes();
-            //    //MEPSize segmentSize= new MEPSize()
-            //    //segment.AddSize()
-            //}
-
-
-            ElectricalSetting electricalSetting = ElectricalSetting.GetElectricalSettings(doc);
-            DistributionSysTypeSet distributeSystems = electricalSetting.DistributionSysTypes;
-            foreach(DistributionSysType system in distributeSystems)
+            FamilyInstance beam = null;
+            try
             {
-                
+                var bemRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, "Pick Beam");
+                beam = doc.GetElement(bemRef) as FamilyInstance;
             }
+            catch { }
 
-            VoltageTypeSet voltageSet = electricalSetting.VoltageTypes;
-            VoltageType vot120 = null;
-            foreach (VoltageType voltageType in voltageSet)
+            double widthBeam = beam.Symbol.LookupParameter("b").AsDouble();
+            double heightBeam= beam.Symbol.LookupParameter("h").AsDouble();
+            if (beam.Location == null) return Result.Succeeded;
+            LocationCurve locationCurve = beam.Location as LocationCurve;
+            double cover = 50 / 304.8;
+            RebarBarType rebarBatType22 = new FilteredElementCollector(doc).OfClass(typeof(RebarBarType)).Cast<RebarBarType>()
+                .First(x => Math.Abs(x.BarNominalDiameter - 22.2 / 304.8) < 0.0001);
+
+            if(locationCurve != null)
             {
-                if (Math.Abs(voltageType.ActualValue - 120)<0.000001)
+                Curve curveBeam = locationCurve.Curve;
+                Line lineBeam = curveBeam as Line;
+                if(lineBeam != null)
                 {
-                    vot120 = voltageType;
-                    break;
-                }
-            }
-            //electricalSetting.AddVoltageType("150", 150, 140, 160);
 
-            //electricalSetting.RemoveVoltageType(vot120);
+                    // lop tren
 
-            //IEnumerable<TemperatureRatingType> temperateRatingType= new FilteredElementCollector(doc)
-            //    .OfClass(typeof(TemperatureRatingType)).Cast<TemperatureRatingType>();
+                    XYZ directionBeam = lineBeam.Direction.Normalize();
+                    XYZ normalRebar = directionBeam.CrossProduct(XYZ.BasisZ).Normalize();
+                    XYZ vectorMove = directionBeam.CrossProduct(normalRebar).Normalize();
+                    Transform transformDown = Transform.CreateTranslation(vectorMove* cover);
+                    Line lineMoveDown = lineBeam.CreateTransformed(transformDown) as Line;
 
-            //TemperatureRatingType temperate55 = null;
-            //foreach(TemperatureRatingType ratingType in temperateRatingType)
-            //{
-            //    if(ratingType.Name== "55")
-            //    {
-            //        temperate55 = ratingType;
-            //        break;
-            //    }
-            //}
+                    double sPara = lineMoveDown.GetEndParameter(0);
+                    double ePara= lineMoveDown.GetEndParameter(1);
+
+                    double sParaTrim = sPara + cover / lineMoveDown.Length * (ePara - sPara);
+                    double eParaTrim = ePara - cover/ lineMoveDown.Length * (ePara - sPara);
+                    lineMoveDown.MakeBound(sParaTrim, eParaTrim);
+
+                    XYZ pLT = lineMoveDown.GetEndPoint(0);
+                    XYZ pRT = lineMoveDown.GetEndPoint(1);
+
+                    
+
+                    Transform transformMoveDown2 = Transform.CreateTranslation(vectorMove* (heightBeam - 200 / 304.8));
+                    XYZ pLB = transformMoveDown2.OfPoint(pLT);
+                    XYZ pRB = transformMoveDown2.OfPoint(pRT);
+
+                    Line line1 = Line.CreateBound(pLB, pLT);
+                    Line line2 = lineMoveDown;
+                    Line line3 = Line.CreateBound(pRT, pRB);
+                    Transform moveLeft = Transform.CreateTranslation(-normalRebar * (widthBeam / 2 - cover));
+
+                    using (Transaction t= new Transaction(doc, "CreateStandardRebar"))
+                    {
+                        t.Start();
+                        Rebar rebar= Rebar.CreateFromCurves(doc, RebarStyle.Standard, rebarBatType22, null, null, beam, normalRebar,
+                            new List<Curve> { line1,line2,line3 }, RebarHookOrientation.Left, RebarHookOrientation.Left, true, true);
+                        ElementTransformUtils.MoveElement(doc, rebar.Id, -normalRebar * (widthBeam / 2 - cover));
+                        rebar.GetShapeDrivenAccessor().SetLayoutAsFixedNumber(3, widthBeam - 2 * cover, true, true, true);
+                        rebar.SetUnobscuredInView(doc.ActiveView, true);
+                        t.Commit();
+                    }
+
+                    // lop duoi
+                    Transform transformBot = Transform.CreateTranslation(vectorMove * (heightBeam - cover));
+                    Line lineBot = lineBeam.CreateTransformed(transformBot) as Line;
+                    lineBot.MakeBound(sParaTrim, eParaTrim);
+
+                    var hocks = new FilteredElementCollector(doc).OfClass(typeof(RebarHookType)).Cast<RebarHookType>();
+                    RebarHookType hock180 = hocks.First(x => Math.Abs(x.HookAngle - Math.PI) < 0.0001);
+
+                    Rebar rebarBottom = null;
+                    using (Transaction t = new Transaction(doc, "CreateStandardRebar"))
+                    {
+                        t.Start();
 
 
-            WireMaterialTypeSet wireMaterialSet = doc.Settings.ElectricalSetting.WireMaterialTypes;
+                        Line lineBotMoveLeft = lineBot.CreateTransformed(moveLeft) as Line;
 
-            WireMaterialType mateialAluminium = null;
-            foreach(WireMaterialType wireMat in wireMaterialSet)
-            {
-                if (wireMat.Name == "Aluminium")
-                {
-                    mateialAluminium = wireMat;
-                    break;
+                        rebarBottom = Rebar.CreateFromCurves(doc, RebarStyle.Standard, rebarBatType22, hock180, hock180, beam, normalRebar,
+                            new List<Curve> { lineBotMoveLeft }, RebarHookOrientation.Left, RebarHookOrientation.Left, true, true);
+                        rebarBottom.SetUnobscuredInView(doc.ActiveView, true);
+
+                        //rebarBottom.GetShapeDrivenAccessor().SetLayoutAsFixedNumber(4, widthBeam - 2 * cover, true, true, true);
+
+                        rebarBottom.GetShapeDrivenAccessor().SetLayoutAsMaximumSpacing(50 / 304.8, widthBeam - 2 * cover, true, true, true);
+
+                        t.Commit();
+                    }
+                    var listCenterCurve = rebarBottom.GetCenterlineCurves(true, false, false, MultiplanarOption.IncludeAllMultiplanarCurves, 0);
+
+                    //using (Transaction t = new Transaction(doc, "RebarContainer"))
+                    //{
+                    //    t.Start();
+                    //    ElementId iddRebarContainerType = RebarContainerType.CreateDefaultRebarContainerType(doc);
+                    //    RebarContainer rebarContainer = RebarContainer.Create(doc, beam, iddRebarContainerType);
+                    //    rebarContainer.PresentItemsAsSubelements = true;
+
+                    //    Line lineBotMoveLeft = lineBot.CreateTransformed(moveLeft) as Line;
+                    //    rebarContainer.AppendItemFromCurves(RebarStyle.Standard, rebarBatType22, hock180, hock180, normalRebar,
+                    //        new List<Curve> { lineBotMoveLeft }, RebarHookOrientation.Left, RebarHookOrientation.Left, true, true);
+
+
+                    //    t.Commit();
+                    //}
+
+
                 }
             }
 
-            TemperatureRatingTypeSet temperateSet = mateialAluminium.TemperatureRatings;
-            TemperatureRatingType temperateType55 = null;
-            foreach (TemperatureRatingType tempItem in temperateSet)
-            {
-                if (tempItem.Name == "55")
-                {
-                    temperateType55 = tempItem;
-                    break;
-                }
-            }
 
-            InsulationTypeSet insulationSet = temperateType55.InsulationTypes;
-            InsulationType insulateTT = null;
-            foreach(InsulationType insulateItem in insulationSet)
-            {
-                if (insulateItem.Name == "TT")
-                {
-                    insulateTT = insulateItem;
-                    break;
-                }
-            }
-
-            WireSizeSet wireSizeSet = temperateType55.WireSizes;
-            WireSize wireSize99 = null;
-            foreach(WireSize wireSizeItem in wireSizeSet)
-            {
-                if (wireSizeItem.Ampacity == 99)
-                {
-                    wireSize99 = wireSizeItem;
-                    break;
-                }
-            }
-
-            CableTraySizes cableTraySize = CableTraySizes.GetCableTraySizes(doc);
-            DuctSizeSettings ductSizeStting = DuctSizeSettings.GetDuctSizeSettings(doc);
-            IEnumerator<KeyValuePair<DuctShape,DuctSizes>> ductSizeIterator= ductSizeStting.GetEnumerator();
-
-            DuctSizes sizeRectangle = null;
-            ductSizeIterator.Reset();
-            while (ductSizeIterator.MoveNext())
-            {
-                KeyValuePair<DuctShape, DuctSizes> keyValue = ductSizeIterator.Current;
-                if(keyValue.Key== DuctShape.Rectangular)
-                {
-                    sizeRectangle = keyValue.Value;
-                    break;
-                }
-
-            }
             
-
-           
-            
-
-
-
             
 
 
