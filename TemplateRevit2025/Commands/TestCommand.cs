@@ -58,8 +58,6 @@ namespace TemplateRevit2025.Commands
                     XYZ pLT = lineMoveDown.GetEndPoint(0);
                     XYZ pRT = lineMoveDown.GetEndPoint(1);
 
-                    
-
                     Transform transformMoveDown2 = Transform.CreateTranslation(vectorMove* (heightBeam - 200 / 304.8));
                     XYZ pLB = transformMoveDown2.OfPoint(pLT);
                     XYZ pRB = transformMoveDown2.OfPoint(pRT);
