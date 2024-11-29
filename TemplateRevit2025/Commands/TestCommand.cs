@@ -91,7 +91,7 @@ namespace TemplateRevit2025.Commands
 
             Conduit conduit = Conduit.Create(doc, conduitTypes.First().Id,);
 
-            
+
 
             DuctSettings ductSetting = DuctSettings.GetDuctSettings(doc);
             ductSetting.FittingAngleUsage = FittingAngleUsage.UseAnAngleIncrement;
@@ -118,28 +118,28 @@ namespace TemplateRevit2025.Commands
                     {
 
                     }
-                //MEPSize segmentSize= new MEPSize()
-                //segment.AddSize()
-            }
-
-
-            ElectricalSetting electricalSetting = ElectricalSetting.GetElectricalSettings(doc);
-            DistributionSysTypeSet distributeSystems = electricalSetting.DistributionSysTypes;
-            foreach(DistributionSysType system in distributeSystems)
-            {
-                
-            }
-
-            VoltageTypeSet voltageSet = electricalSetting.VoltageTypes;
-            VoltageType vot120 = null;
-            foreach (VoltageType voltageType in voltageSet)
-            {
-                if (Math.Abs(voltageType.ActualValue - 120)<0.000001)
-                {
-                    vot120 = voltageType;
-                    break;
+                    //MEPSize segmentSize= new MEPSize()
+                    //segment.AddSize()
                 }
-            }
+
+
+                ElectricalSetting electricalSetting = ElectricalSetting.GetElectricalSettings(doc);
+                DistributionSysTypeSet distributeSystems = electricalSetting.DistributionSysTypes;
+                foreach (DistributionSysType system in distributeSystems)
+                {
+
+                }
+
+                VoltageTypeSet voltageSet = electricalSetting.VoltageTypes;
+                VoltageType vot120 = null;
+                foreach (VoltageType voltageType in voltageSet)
+                {
+                    if (Math.Abs(voltageType.ActualValue - 120) < 0.000001)
+                    {
+                        vot120 = voltageType;
+                        break;
+                    }
+                }
 
                 electricalSetting.AddVoltageType("150", 150, 140, 160);
 
@@ -159,126 +159,126 @@ namespace TemplateRevit2025.Commands
                 //}
 
 
-            WireMaterialTypeSet wireMaterialSet = doc.Settings.ElectricalSetting.WireMaterialTypes;
+                WireMaterialTypeSet wireMaterialSet = doc.Settings.ElectricalSetting.WireMaterialTypes;
 
-            WireMaterialType mateialAluminium = null;
-            foreach(WireMaterialType wireMat in wireMaterialSet)
-            {
-                if (wireMat.Name == "Aluminium")
+                WireMaterialType mateialAluminium = null;
+                foreach (WireMaterialType wireMat in wireMaterialSet)
                 {
-                    mateialAluminium = wireMat;
-                    break;
-                }
-            }
-
-            TemperatureRatingTypeSet temperateSet = mateialAluminium.TemperatureRatings;
-            TemperatureRatingType temperateType55 = null;
-            foreach (TemperatureRatingType tempItem in temperateSet)
-            {
-                if (tempItem.Name == "55")
-                {
-                    temperateType55 = tempItem;
-                    break;
-                }
-            }
-
-            InsulationTypeSet insulationSet = temperateType55.InsulationTypes;
-            InsulationType insulateTT = null;
-            foreach(InsulationType insulateItem in insulationSet)
-            {
-                if (insulateItem.Name == "TT")
-                {
-                    insulateTT = insulateItem;
-                    break;
-                }
-            }
-
-            WireSizeSet wireSizeSet = temperateType55.WireSizes;
-            WireSize wireSize99 = null;
-            foreach(WireSize wireSizeItem in wireSizeSet)
-            {
-                if (wireSizeItem.Ampacity == 99)
-                {
-                    wireSize99 = wireSizeItem;
-                    break;
-                }
-            }
-
-            CableTraySizes cableTraySize = CableTraySizes.GetCableTraySizes(doc);
-            var iteratorCableTraysize = cableTraySize.GetEnumerator();
-            iteratorCableTraysize.Reset();
-            MEPSize size175 = null;
-            while (iteratorCableTraysize.MoveNext())
-            {
-                MEPSize mepSizeItem = iteratorCableTraysize.Current;
-                if(Math.Abs(mepSizeItem.NominalDiameter - 175 / 304.8) < 0.0001)
-                {
-                    size175 = mepSizeItem;
-                    break;
-                }
-            }
-            
-
-
-            DuctSizeSettings ductSizeStting = DuctSizeSettings.GetDuctSizeSettings(doc);
-            IEnumerator<KeyValuePair<DuctShape,DuctSizes>> ductSizeIterator= ductSizeStting.GetEnumerator();
-
-            DuctSizes sizeRectangle = null;
-            ductSizeIterator.Reset();
-            while (ductSizeIterator.MoveNext())
-            {
-                KeyValuePair<DuctShape, DuctSizes> keyValue = ductSizeIterator.Current;
-                if(keyValue.Key== DuctShape.Rectangular)
-                {
-                    sizeRectangle = keyValue.Value;
-                    break;
-                }
-            }
-
-
-
-            ConduitSettings conduitSetting = ConduitSettings.GetConduitSettings(doc);
-            ConduitSizeSettings conduitSizeSetting = ConduitSizeSettings.GetConduitSizeSettings(doc);
-
-            IEnumerator<KeyValuePair<string,ConduitSizes>> conduitSizeIterator = conduitSizeSetting.GetEnumerator();
-            conduitSizeIterator.Reset();
-            ConduitSize conduitSize78RMC = null;
-            while (conduitSizeIterator.MoveNext())
-            {
-                KeyValuePair<string, ConduitSizes> pairSize = conduitSizeIterator.Current;
-                string key = pairSize.Key;
-                if (key == "RMC")
-                {
-                    ConduitSizes valueSize = pairSize.Value;
-
-                    IEnumerator<ConduitSize> iteratorSizeRMC = valueSize.GetEnumerator();
-                    iteratorSizeRMC.Reset();
-                    while (iteratorSizeRMC.MoveNext())
+                    if (wireMat.Name == "Aluminium")
                     {
-                        ConduitSize conduitSize = iteratorSizeRMC.Current;
-                        if(Math.Abs( conduitSize.NominalDiameter-78/304.8)< 0.0001)
+                        mateialAluminium = wireMat;
+                        break;
+                    }
+                }
+
+                TemperatureRatingTypeSet temperateSet = mateialAluminium.TemperatureRatings;
+                TemperatureRatingType temperateType55 = null;
+                foreach (TemperatureRatingType tempItem in temperateSet)
+                {
+                    if (tempItem.Name == "55")
+                    {
+                        temperateType55 = tempItem;
+                        break;
+                    }
+                }
+
+                InsulationTypeSet insulationSet = temperateType55.InsulationTypes;
+                InsulationType insulateTT = null;
+                foreach (InsulationType insulateItem in insulationSet)
+                {
+                    if (insulateItem.Name == "TT")
+                    {
+                        insulateTT = insulateItem;
+                        break;
+                    }
+                }
+
+                WireSizeSet wireSizeSet = temperateType55.WireSizes;
+                WireSize wireSize99 = null;
+                foreach (WireSize wireSizeItem in wireSizeSet)
+                {
+                    if (wireSizeItem.Ampacity == 99)
+                    {
+                        wireSize99 = wireSizeItem;
+                        break;
+                    }
+                }
+
+                CableTraySizes cableTraySize = CableTraySizes.GetCableTraySizes(doc);
+                var iteratorCableTraysize = cableTraySize.GetEnumerator();
+                iteratorCableTraysize.Reset();
+                MEPSize size175 = null;
+                while (iteratorCableTraysize.MoveNext())
+                {
+                    MEPSize mepSizeItem = iteratorCableTraysize.Current;
+                    if (Math.Abs(mepSizeItem.NominalDiameter - 175 / 304.8) < 0.0001)
+                    {
+                        size175 = mepSizeItem;
+                        break;
+                    }
+                }
+
+
+
+                DuctSizeSettings ductSizeStting = DuctSizeSettings.GetDuctSizeSettings(doc);
+                IEnumerator<KeyValuePair<DuctShape, DuctSizes>> ductSizeIterator = ductSizeStting.GetEnumerator();
+
+                DuctSizes sizeRectangle = null;
+                ductSizeIterator.Reset();
+                while (ductSizeIterator.MoveNext())
+                {
+                    KeyValuePair<DuctShape, DuctSizes> keyValue = ductSizeIterator.Current;
+                    if (keyValue.Key == DuctShape.Rectangular)
+                    {
+                        sizeRectangle = keyValue.Value;
+                        break;
+                    }
+                }
+
+
+
+                ConduitSettings conduitSetting = ConduitSettings.GetConduitSettings(doc);
+                ConduitSizeSettings conduitSizeSetting = ConduitSizeSettings.GetConduitSizeSettings(doc);
+
+                IEnumerator<KeyValuePair<string, ConduitSizes>> conduitSizeIterator = conduitSizeSetting.GetEnumerator();
+                conduitSizeIterator.Reset();
+                ConduitSize conduitSize78RMC = null;
+                while (conduitSizeIterator.MoveNext())
+                {
+                    KeyValuePair<string, ConduitSizes> pairSize = conduitSizeIterator.Current;
+                    string key = pairSize.Key;
+                    if (key == "RMC")
+                    {
+                        ConduitSizes valueSize = pairSize.Value;
+
+                        IEnumerator<ConduitSize> iteratorSizeRMC = valueSize.GetEnumerator();
+                        iteratorSizeRMC.Reset();
+                        while (iteratorSizeRMC.MoveNext())
                         {
-                            conduitSize78RMC = conduitSize;
-                            break;
+                            ConduitSize conduitSize = iteratorSizeRMC.Current;
+                            if (Math.Abs(conduitSize.NominalDiameter - 78 / 304.8) < 0.0001)
+                            {
+                                conduitSize78RMC = conduitSize;
+                                break;
+                            }
                         }
                     }
                 }
+
+
+
+                PipeSettings pipeSettting = PipeSettings.GetPipeSettings(doc);
+
+
+
+
+
+
+
+
+
+
+                return Result.Succeeded;
             }
-
-
-
-            PipeSettings pipeSettting = PipeSettings.GetPipeSettings(doc);
-
-            
-            
-
-            
-
-
-
-
-
-            return Result.Succeeded;
         }
     }
-}
