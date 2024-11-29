@@ -210,7 +210,6 @@ namespace TemplateRevit2025.Commands
                     sizeRectangle = keyValue.Value;
                     break;
                 }
-
             }
             
 
