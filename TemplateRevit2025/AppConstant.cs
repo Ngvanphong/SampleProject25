@@ -8,7 +8,7 @@ namespace TemplateRevit2025
 {
     public class AppConstant
     {
-        public const string TabName = "Kss";
+        public const string TabName = "MEP";
         public const string PanelAr = "Architecture";
     }
 }
