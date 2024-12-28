@@ -313,11 +313,11 @@ namespace TemplateRevit2025.Commands
                 }
             }
 
-            MEPSystemType mepSystemType= new FilteredElementCollector(doc).OfClass(typeof(MEPSystemType)).Cast<MEPSystemType>()
-                .First(x=>x.SystemClassification == MEPSystemClassification.Sanitary);
+            MEPSystemType mepSystemType = new FilteredElementCollector(doc).OfClass(typeof(MEPSystemType)).Cast<MEPSystemType>()
+                .First(x => x.SystemClassification == MEPSystemClassification.Sanitary);
 
             List<Pipe> listAllPipe = new List<Pipe>();
-            using(TransactionGroup tg= new TransactionGroup(doc, "GorupTran"))
+            using (TransactionGroup tg = new TransactionGroup(doc, "GorupTran"))
             {
                 tg.Start();
                 foreach (Line line in listLineCatReult)
@@ -333,16 +333,133 @@ namespace TemplateRevit2025.Commands
                 tg.Assimilate();
             }
 
-            
+
+            List<ConnectData> listConnectResult = new List<ConnectData>();
 
 
+            foreach (Pipe pipe in listAllPipe)
+            {
+                ConnectorManager connectorManager = pipe.ConnectorManager;
+                Connector startConnector = connectorManager.Lookup(0);
+                Connector endConnector = connectorManager.Lookup(1);
+
+                XYZ startConnectorPoint = startConnector.Origin;
+                XYZ endConnectorPoint = endConnector.Origin;
 
 
+                List<Connector> listConectorStart = new List<Connector>();
+                listConectorStart.Add(startConnector);
 
+                List<Connector> listConectorEnd = new List<Connector>();
+                listConectorEnd.Add(endConnector);
+
+                foreach (Pipe otherPipe in listAllPipe)
+                {
+                    if (otherPipe.Id == pipe.Id) continue;
+                    ConnectorManager otherConnectorManager = otherPipe.ConnectorManager;
+                    Connector startConnectorOther = otherConnectorManager.Lookup(0);
+                    Connector endConnectorOther = otherConnectorManager.Lookup(1);
+
+                    XYZ startPointConnectorOther = startConnectorOther.Origin;
+                    XYZ endPointConnectorOther = endConnectorOther.Origin;
+
+                    if (startConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
+                    {
+                        listConectorStart.Add(startConnectorOther);
+                    }
+                    if (startConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
+                    {
+                        listConectorStart.Add(endConnectorOther);
+                    }
+
+                    if (endConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
+                    {
+                        listConectorEnd.Add(startConnectorOther);
+                    }
+                    if (endConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
+                    {
+                        listConectorEnd.Add(endConnectorOther);
+                    }
+                }
+
+                if (listConectorStart.Count >= 2)
+                {
+                    if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(startConnectorPoint, 0.0001)))
+                    {
+                        ConnectData connectorData = new ConnectData();
+                        connectorData.Connectors = listConectorStart;
+                        connectorData.PointConnect = startConnectorPoint;
+                        listConnectResult.Add(connectorData);
+                    }
+                }
+                if (listConectorEnd.Count >= 2)
+                {
+                    if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(endConnectorPoint, 0.00001)))
+                    {
+                        ConnectData connectorData = new ConnectData();
+                        connectorData.Connectors = listConectorEnd;
+                        connectorData.PointConnect = endConnectorPoint;
+                        listConnectResult.Add(connectorData);
+                    }
+                }
+            }
+
+            using (Transaction t = new Transaction(doc, "CreateConnect"))
+            {
+                t.Start();
+                foreach (ConnectData data in listConnectResult)
+                {
+                    if (data.Connectors.Count == 2) //ebow
+                    {
+                        doc.Create.NewElbowFitting(data.Connectors[0], data.Connectors[1]);
+                    }
+                    else if (data.Connectors.Count == 3) //tee
+                    {
+                        Connector connector1 = data.Connectors[0];
+                        Connector connector2 = data.Connectors[1];
+                        Connector connector3 = data.Connectors[2];
+                        Transform transform1 = connector1.CoordinateSystem;
+                        Transform transform2 = connector2.CoordinateSystem;
+                        Transform transform3 = connector3.CoordinateSystem;
+
+                        Connector subConnector = null;
+                        Connector mainConnector1 = null;
+                        Connector mainConnector2 = null;
+                        if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform2.BasisZ)) - 1) < 0.0001)
+                        {
+                            subConnector = connector3;
+                            mainConnector1 = connector1;
+                            mainConnector2 = connector2;
+                        }
+                        else if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform3.BasisZ)) - 1) < 0.0001)
+                        {
+                            subConnector = connector2;
+                            mainConnector1 = connector1;
+                            mainConnector2 = connector3;
+                        }
+                        else
+                        {
+                            subConnector = connector1;
+                            mainConnector1 = connector2;
+                            mainConnector2 = connector3;
+                        }
+
+                        doc.Create.NewTeeFitting(mainConnector1, mainConnector2, subConnector);
+                    }
+                }
+                t.Commit();
+            }
 
 
             return Result.Succeeded;
 
         }
+    }
+
+    public class ConnectData
+    {
+        public List<Connector> Connectors { set; get; }
+
+        public XYZ PointConnect { set; get; }
     }
 }
