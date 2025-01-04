@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using Accessibility;
+using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TemplateRevit2025.NetEvent.ChairFamily;
 using TemplateRevit2025.NetEvent.Test;
+using TemplateRevit2025.RevitHandler.CombineDuct;
 using TemplateRevit2025.ViewModel.ChairFamily;
 
 namespace TemplateRevit2025.View.ChairFamily
@@ -33,17 +35,26 @@ namespace TemplateRevit2025.View.ChairFamily
             var dataContext = this.DataContext as ChairFamilyVM;
             dataContext.Types = sendData.ListTypeVm;
         }
-        public ChairFamilyView()
+
+        private ExternalEvent _changeDuctEvent;
+        public ChairFamilyView(ExternalEvent changeDuctEvent)
         {
             InitializeComponent();
-            _familySendEvent = new FamilyDataEvent();
-            
+            _changeDuctEvent = changeDuctEvent;
         }
 
         private void btnOk(object sender, RoutedEventArgs e)
         {
-
+            ChangeDuctAppShow.IndexButton = 0;
+            _changeDuctEvent.Raise();
         }
+
+        private void btnDown(object sender, RoutedEventArgs e)
+        {
+            ChangeDuctAppShow.IndexButton = 1;
+            _changeDuctEvent.Raise();
+        }
+
 
         private void comboboxFamilyChanged(object sender, SelectionChangedEventArgs e)
         {

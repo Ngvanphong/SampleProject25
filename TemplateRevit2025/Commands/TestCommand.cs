@@ -16,6 +16,8 @@ namespace TemplateRevit2025.Commands
         {
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
+
+            #region mep
             /*
              * Duct
              */
@@ -259,196 +261,199 @@ namespace TemplateRevit2025.Commands
 
 
 
-            PipeSettings pipeSettting = PipeSettings.GetPipeSettings(doc);
+            //PipeSettings pipeSettting = PipeSettings.GetPipeSettings(doc);
 
 
-            PipeType pipeTypeStandard = new FilteredElementCollector(doc).OfClass(typeof(PipeType)).Cast<PipeType>().
-                FirstOrDefault(x => x.Name == "Standard");
+            //PipeType pipeTypeStandard = new FilteredElementCollector(doc).OfClass(typeof(PipeType)).Cast<PipeType>().
+            //    FirstOrDefault(x => x.Name == "Standard");
 
 
-            // cat tung doan line
+            //// cat tung doan line
 
-            var ids = uiDoc.Selection.GetElementIds();
-            List<Line> listLineBandau = new List<Line>();
-            foreach (ElementId id in ids)
-            {
-                DetailLine lineItem = doc.GetElement(id) as DetailLine;
-                if (lineItem != null)
-                {
-                    listLineBandau.Add(lineItem.GeometryCurve as Line);
-                }
-            }
-            List<Line> listLineCatReult = new List<Line>();
-            foreach (Line lineCanCat in listLineBandau)
-            {
-                List<Line> listLineCanCat = new List<Line>();
-                listLineCanCat.Add(lineCanCat);
-                while (listLineCanCat.Count > 0)
-                {
-                    Line lineCancatItem = listLineCanCat[0];
-                    XYZ sp = lineCancatItem.GetEndPoint(0);
-                    XYZ ep = lineCancatItem.GetEndPoint(1);
-                    listLineCanCat.RemoveAt(0);
-                    bool isCat = false;
-                    foreach (Line lineCheck in listLineBandau)
-                    {
-                        if (lineCancatItem == lineCheck) continue;
-                        lineCancatItem.Intersect(lineCheck, out IntersectionResultArray resultIntersection);
-                        if (resultIntersection != null && resultIntersection.Size == 1)
-                        {
-                            XYZ interecion = resultIntersection.get_Item(0).XYZPoint;
-                            if (!(interecion.IsAlmostEqualTo(sp, 0.0001) || interecion.IsAlmostEqualTo(ep, 0.0001)))
-                            {
-                                Line line1 = Line.CreateBound(sp, interecion);
-                                Line line2 = Line.CreateBound(interecion, ep);
-                                listLineCanCat.Add(line1);
-                                listLineCanCat.Add(line2);
-                                isCat = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (isCat == false) listLineCatReult.Add(lineCancatItem);
+            //var ids = uiDoc.Selection.GetElementIds();
+            //List<Line> listLineBandau = new List<Line>();
+            //foreach (ElementId id in ids)
+            //{
+            //    DetailLine lineItem = doc.GetElement(id) as DetailLine;
+            //    if (lineItem != null)
+            //    {
+            //        listLineBandau.Add(lineItem.GeometryCurve as Line);
+            //    }
+            //}
+            //List<Line> listLineCatReult = new List<Line>();
+            //foreach (Line lineCanCat in listLineBandau)
+            //{
+            //    List<Line> listLineCanCat = new List<Line>();
+            //    listLineCanCat.Add(lineCanCat);
+            //    while (listLineCanCat.Count > 0)
+            //    {
+            //        Line lineCancatItem = listLineCanCat[0];
+            //        XYZ sp = lineCancatItem.GetEndPoint(0);
+            //        XYZ ep = lineCancatItem.GetEndPoint(1);
+            //        listLineCanCat.RemoveAt(0);
+            //        bool isCat = false;
+            //        foreach (Line lineCheck in listLineBandau)
+            //        {
+            //            if (lineCancatItem == lineCheck) continue;
+            //            lineCancatItem.Intersect(lineCheck, out IntersectionResultArray resultIntersection);
+            //            if (resultIntersection != null && resultIntersection.Size == 1)
+            //            {
+            //                XYZ interecion = resultIntersection.get_Item(0).XYZPoint;
+            //                if (!(interecion.IsAlmostEqualTo(sp, 0.0001) || interecion.IsAlmostEqualTo(ep, 0.0001)))
+            //                {
+            //                    Line line1 = Line.CreateBound(sp, interecion);
+            //                    Line line2 = Line.CreateBound(interecion, ep);
+            //                    listLineCanCat.Add(line1);
+            //                    listLineCanCat.Add(line2);
+            //                    isCat = true;
+            //                    break;
+            //                }
+            //            }
+            //        }
+            //        if (isCat == false) listLineCatReult.Add(lineCancatItem);
 
-                }
-            }
+            //    }
+            //}
 
-            MEPSystemType mepSystemType = new FilteredElementCollector(doc).OfClass(typeof(MEPSystemType)).Cast<MEPSystemType>()
-                .First(x => x.SystemClassification == MEPSystemClassification.Sanitary);
+            //MEPSystemType mepSystemType = new FilteredElementCollector(doc).OfClass(typeof(MEPSystemType)).Cast<MEPSystemType>()
+            //    .First(x => x.SystemClassification == MEPSystemClassification.Sanitary);
 
-            List<Pipe> listAllPipe = new List<Pipe>();
-            using (TransactionGroup tg = new TransactionGroup(doc, "GorupTran"))
-            {
-                tg.Start();
-                foreach (Line line in listLineCatReult)
-                {
-                    using (Transaction t = new Transaction(doc, "CreatePipe"))
-                    {
-                        t.Start();
-                        var pipe = Pipe.Create(doc, mepSystemType.Id, pipeTypeStandard.Id, doc.ActiveView.GenLevel.Id, line.GetEndPoint(0), line.GetEndPoint(1));
-                        listAllPipe.Add(pipe);
-                        t.Commit();
-                    }
-                }
-                tg.Assimilate();
-            }
-
-
-            List<ConnectData> listConnectResult = new List<ConnectData>();
+            //List<Pipe> listAllPipe = new List<Pipe>();
+            //using (TransactionGroup tg = new TransactionGroup(doc, "GorupTran"))
+            //{
+            //    tg.Start();
+            //    foreach (Line line in listLineCatReult)
+            //    {
+            //        using (Transaction t = new Transaction(doc, "CreatePipe"))
+            //        {
+            //            t.Start();
+            //            var pipe = Pipe.Create(doc, mepSystemType.Id, pipeTypeStandard.Id, doc.ActiveView.GenLevel.Id, line.GetEndPoint(0), line.GetEndPoint(1));
+            //            listAllPipe.Add(pipe);
+            //            t.Commit();
+            //        }
+            //    }
+            //    tg.Assimilate();
+            //}
 
 
-            foreach (Pipe pipe in listAllPipe)
-            {
-                ConnectorManager connectorManager = pipe.ConnectorManager;
-                Connector startConnector = connectorManager.Lookup(0);
-                Connector endConnector = connectorManager.Lookup(1);
-
-                XYZ startConnectorPoint = startConnector.Origin;
-                XYZ endConnectorPoint = endConnector.Origin;
+            //List<ConnectData> listConnectResult = new List<ConnectData>();
 
 
-                List<Connector> listConectorStart = new List<Connector>();
-                listConectorStart.Add(startConnector);
+            //foreach (Pipe pipe in listAllPipe)
+            //{
+            //    ConnectorManager connectorManager = pipe.ConnectorManager;
+            //    Connector startConnector = connectorManager.Lookup(0);
+            //    Connector endConnector = connectorManager.Lookup(1);
 
-                List<Connector> listConectorEnd = new List<Connector>();
-                listConectorEnd.Add(endConnector);
+            //    XYZ startConnectorPoint = startConnector.Origin;
+            //    XYZ endConnectorPoint = endConnector.Origin;
 
-                foreach (Pipe otherPipe in listAllPipe)
-                {
-                    if (otherPipe.Id == pipe.Id) continue;
-                    ConnectorManager otherConnectorManager = otherPipe.ConnectorManager;
-                    Connector startConnectorOther = otherConnectorManager.Lookup(0);
-                    Connector endConnectorOther = otherConnectorManager.Lookup(1);
 
-                    XYZ startPointConnectorOther = startConnectorOther.Origin;
-                    XYZ endPointConnectorOther = endConnectorOther.Origin;
+            //    List<Connector> listConectorStart = new List<Connector>();
+            //    listConectorStart.Add(startConnector);
 
-                    if (startConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
-                    {
-                        listConectorStart.Add(startConnectorOther);
-                    }
-                    if (startConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
-                    {
-                        listConectorStart.Add(endConnectorOther);
-                    }
+            //    List<Connector> listConectorEnd = new List<Connector>();
+            //    listConectorEnd.Add(endConnector);
 
-                    if (endConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
-                    {
-                        listConectorEnd.Add(startConnectorOther);
-                    }
-                    if (endConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
-                    {
-                        listConectorEnd.Add(endConnectorOther);
-                    }
-                }
+            //    foreach (Pipe otherPipe in listAllPipe)
+            //    {
+            //        if (otherPipe.Id == pipe.Id) continue;
+            //        ConnectorManager otherConnectorManager = otherPipe.ConnectorManager;
+            //        Connector startConnectorOther = otherConnectorManager.Lookup(0);
+            //        Connector endConnectorOther = otherConnectorManager.Lookup(1);
 
-                if (listConectorStart.Count >= 2)
-                {
-                    if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(startConnectorPoint, 0.0001)))
-                    {
-                        ConnectData connectorData = new ConnectData();
-                        connectorData.Connectors = listConectorStart;
-                        connectorData.PointConnect = startConnectorPoint;
-                        listConnectResult.Add(connectorData);
-                    }
-                }
-                if (listConectorEnd.Count >= 2)
-                {
-                    if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(endConnectorPoint, 0.00001)))
-                    {
-                        ConnectData connectorData = new ConnectData();
-                        connectorData.Connectors = listConectorEnd;
-                        connectorData.PointConnect = endConnectorPoint;
-                        listConnectResult.Add(connectorData);
-                    }
-                }
-            }
+            //        XYZ startPointConnectorOther = startConnectorOther.Origin;
+            //        XYZ endPointConnectorOther = endConnectorOther.Origin;
 
-            using (Transaction t = new Transaction(doc, "CreateConnect"))
-            {
-                t.Start();
-                foreach (ConnectData data in listConnectResult)
-                {
-                    if (data.Connectors.Count == 2) //ebow
-                    {
-                        doc.Create.NewElbowFitting(data.Connectors[0], data.Connectors[1]);
-                    }
-                    else if (data.Connectors.Count == 3) //tee
-                    {
-                        Connector connector1 = data.Connectors[0];
-                        Connector connector2 = data.Connectors[1];
-                        Connector connector3 = data.Connectors[2];
-                        Transform transform1 = connector1.CoordinateSystem;
-                        Transform transform2 = connector2.CoordinateSystem;
-                        Transform transform3 = connector3.CoordinateSystem;
+            //        if (startConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
+            //        {
+            //            listConectorStart.Add(startConnectorOther);
+            //        }
+            //        if (startConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
+            //        {
+            //            listConectorStart.Add(endConnectorOther);
+            //        }
 
-                        Connector subConnector = null;
-                        Connector mainConnector1 = null;
-                        Connector mainConnector2 = null;
-                        if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform2.BasisZ)) - 1) < 0.0001)
-                        {
-                            subConnector = connector3;
-                            mainConnector1 = connector1;
-                            mainConnector2 = connector2;
-                        }
-                        else if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform3.BasisZ)) - 1) < 0.0001)
-                        {
-                            subConnector = connector2;
-                            mainConnector1 = connector1;
-                            mainConnector2 = connector3;
-                        }
-                        else
-                        {
-                            subConnector = connector1;
-                            mainConnector1 = connector2;
-                            mainConnector2 = connector3;
-                        }
+            //        if (endConnectorPoint.IsAlmostEqualTo(startPointConnectorOther, 0.0001))
+            //        {
+            //            listConectorEnd.Add(startConnectorOther);
+            //        }
+            //        if (endConnectorPoint.IsAlmostEqualTo(endPointConnectorOther, 0.0001))
+            //        {
+            //            listConectorEnd.Add(endConnectorOther);
+            //        }
+            //    }
 
-                        doc.Create.NewTeeFitting(mainConnector1, mainConnector2, subConnector);
-                    }
-                }
-                t.Commit();
-            }
+            //    if (listConectorStart.Count >= 2)
+            //    {
+            //        if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(startConnectorPoint, 0.0001)))
+            //        {
+            //            ConnectData connectorData = new ConnectData();
+            //            connectorData.Connectors = listConectorStart;
+            //            connectorData.PointConnect = startConnectorPoint;
+            //            listConnectResult.Add(connectorData);
+            //        }
+            //    }
+            //    if (listConectorEnd.Count >= 2)
+            //    {
+            //        if (!listConnectResult.Exists(x => x.PointConnect.IsAlmostEqualTo(endConnectorPoint, 0.00001)))
+            //        {
+            //            ConnectData connectorData = new ConnectData();
+            //            connectorData.Connectors = listConectorEnd;
+            //            connectorData.PointConnect = endConnectorPoint;
+            //            listConnectResult.Add(connectorData);
+            //        }
+            //    }
+            //}
+
+            //using (Transaction t = new Transaction(doc, "CreateConnect"))
+            //{
+            //    t.Start();
+            //    foreach (ConnectData data in listConnectResult)
+            //    {
+            //        if (data.Connectors.Count == 2) //ebow
+            //        {
+            //            doc.Create.NewElbowFitting(data.Connectors[0], data.Connectors[1]);
+            //        }
+            //        else if (data.Connectors.Count == 3) //tee
+            //        {
+            //            Connector connector1 = data.Connectors[0];
+            //            Connector connector2 = data.Connectors[1];
+            //            Connector connector3 = data.Connectors[2];
+            //            Transform transform1 = connector1.CoordinateSystem;
+            //            Transform transform2 = connector2.CoordinateSystem;
+            //            Transform transform3 = connector3.CoordinateSystem;
+
+            //            Connector subConnector = null;
+            //            Connector mainConnector1 = null;
+            //            Connector mainConnector2 = null;
+            //            if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform2.BasisZ)) - 1) < 0.0001)
+            //            {
+            //                subConnector = connector3;
+            //                mainConnector1 = connector1;
+            //                mainConnector2 = connector2;
+            //            }
+            //            else if (Math.Abs(Math.Abs(transform1.BasisZ.DotProduct(transform3.BasisZ)) - 1) < 0.0001)
+            //            {
+            //                subConnector = connector2;
+            //                mainConnector1 = connector1;
+            //                mainConnector2 = connector3;
+            //            }
+            //            else
+            //            {
+            //                subConnector = connector1;
+            //                mainConnector1 = connector2;
+            //                mainConnector2 = connector3;
+            //            }
+
+            //            doc.Create.NewTeeFitting(mainConnector1, mainConnector2, subConnector);
+            //        }
+            //    }
+            //    t.Commit();
+            //}
+            #endregion
+
+
 
 
             return Result.Succeeded;
