@@ -489,9 +489,7 @@ namespace TemplateRevit2025.Commands
             XYZ directionUpToDown = null;
             if (sMainPoint.Z > eMainPoint.Z) directionUpToDown = directionMainPipe;
             else directionUpToDown = -directionMainPipe;
-
             XYZ vectorMainExceputZ = sMainPoint.Subtract(new XYZ(eMainPoint.X, eMainPoint.Y, sMainPoint.Z)).Normalize();
-
             XYZ vectorRotate = null;
             if (vectorMainExceputZ.IsAlmostEqualTo(XYZ.BasisX) || vectorMainExceputZ.IsAlmostEqualTo(-XYZ.BasisX))
             {
@@ -501,7 +499,6 @@ namespace TemplateRevit2025.Commands
             {
                 vectorRotate = XYZ.BasisX;
             } 
-
             // xoay theo do doc cua main
 
 
