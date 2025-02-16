@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,10 @@ namespace TemplateRevit2025.RevitHandler.CombineDuct
     public static class ChangeDuctAppShow
     {
         public static ChairFamilyView formDuctChange;
-        public static int IndexButton = 0;
+        public static int IndexButton = -1;
+
+        public static List<Duct> SubDuct = null;
+        public static Duct MainDuct = null;
         public static void ShowForm()
         {
             try

@@ -16,11 +16,11 @@ namespace TemplateRevit2025.RevitHandler.CombineDuct
             Document doc= uiDoc.Document;
             if (ChangeDuctAppShow.IndexButton == 0)
             {
-
+                ChangeDuctHelper.ChangeHeight(ChangeDuctAppShow.SubDuct, ChangeDuctAppShow.MainDuct);
             }
             else if (ChangeDuctAppShow.IndexButton == 1)
             {
-
+                //ChangeDuctHelper.ChangeHeight();
             }
         }
 

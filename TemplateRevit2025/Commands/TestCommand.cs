@@ -453,9 +453,62 @@ namespace TemplateRevit2025.Commands
             //}
             #endregion
 
+            //Transform transfomrLeft = null;
+            //XYZ subDirection = null;
+            //double length = 1000/304.8;
+            //XYZ directionLeft = -subDirection.Normalize() * length / 2;
+            //Transform transformLeft = Transform.CreateTranslation(directionLeft);
+            //XYZ leftPOint= transfomrLeft.OfPoint(midPoint);
+
+            //double angle = Math.PI / 2 - 30 / 180 * Math.PI;
+
+            // length/Math.Tan(angle)
+
+            #region lay connector out of family
+            FamilyInstance plumpingFixture = null;
+            MEPModel mepModel = plumpingFixture.MEPModel;
+            ConnectorManager connectorManager= mepModel.ConnectorManager;
+            Connector connectorOut = null;
+            foreach(Connector connector in connectorManager.Connectors)
+            {
+                if(connector.Direction== FlowDirectionType.Out)
+                {
+                    connectorOut = connector;
+                    break;
+                }
+            }
+
+            XYZ positionConnectorOut = connectorOut.CoordinateSystem.Origin;
+
+            Pipe mainPipe = null;
+            LocationCurve locaitonCuve = mainPipe.Location as LocationCurve;
+            Line lineMainPipe = locaitonCuve.Curve as Line;
+            XYZ directionMainPipe = lineMainPipe.Direction.Normalize();
+            XYZ sMainPoint = lineMainPipe.GetEndPoint(0);
+            XYZ eMainPoint = lineMainPipe.GetEndPoint(1);
+            XYZ directionUpToDown = null;
+            if (sMainPoint.Z > eMainPoint.Z) directionUpToDown = directionMainPipe;
+            else directionUpToDown = -directionMainPipe;
+
+            XYZ vectorMainExceputZ = sMainPoint.Subtract(new XYZ(eMainPoint.X, eMainPoint.Y, sMainPoint.Z)).Normalize();
+
+            XYZ vectorRotate = null;
+            if (vectorMainExceputZ.IsAlmostEqualTo(XYZ.BasisX) || vectorMainExceputZ.IsAlmostEqualTo(-XYZ.BasisX))
+            {
+                vectorRotate = XYZ.BasisY;
+            }
+            else 
+            {
+                vectorRotate = XYZ.BasisX;
+            } 
+
+            // xoay theo do doc cua main
 
 
 
+
+
+            #endregion
             return Result.Succeeded;
 
         }
