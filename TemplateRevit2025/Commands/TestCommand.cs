@@ -6,6 +6,7 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Internal.InfoCenter;
+using TemplateRevit2025.Utilities;
 
 namespace TemplateRevit2025.Commands
 {
@@ -390,7 +391,7 @@ namespace TemplateRevit2025.Commands
             //        {
             //            ConnectData connectorData = new ConnectData();
             //            connectorData.Connectors = listConectorStart;
-            //            connectorData.PointConnect = startConnectorPoint;
+            //            connectorData.PointConnect = startConnectorPoint;``
             //            listConnectResult.Add(connectorData);
             //        }
             //    }
@@ -498,17 +499,235 @@ namespace TemplateRevit2025.Commands
             else 
             {
                 vectorRotate = XYZ.BasisX;
-            } 
+            }
             //xoay theo do doc cua main
 
 
+            XYZ interseciton = null;
+            XYZ upToDown = null;
+            Transform transfomr1 = Transform.CreateTranslation(upToDown * 1000 / 304.8);
+            XYZ point1000 = transfomr1.OfPoint(interseciton);
+
+            // var point10002 = interseciton + upToDown * 1000 / 304.8;
+
+            //Transform transfomrRotation1= Transform.CreateRotation(,)
+            double tanApha = 0.01;
+            double angle = Math.Atan(tanApha);
+            Transform transformRot1 = null;
+            Transform transformRot2 = null;
+
+            //XYZ vectorAfterRot1= transfomr1.OfVector()
+
+            //Plane plane= Plane.CreateByNormalAndOrigin()
+
+            XYZ p1 = null;
+            XYZ p2 = null;
+
+            XYZ p1RoP2 = p2 - p1;
+
+            XYZ pointOuter = null;
+            bool isTrueP1 = false;
+            if(p1.Z < pointOuter.Z && p2.Z > pointOuter.Z)
+            {
+                isTrueP1 = true;
+            }
+            else if(p1.Z > pointOuter.Z && p2.Z < pointOuter.Z)
+            {
+                isTrueP1 = false;
+            }
+            else
+            {
+                double d1= pointOuter.DistanceTo(p1);
+                double d2= pointOuter.DistanceTo(p2);
+                if(d1< d2)
+                {
+                    isTrueP1 = true;
+                }
+                else
+                {
+                    isTrueP1 = false;
+                }
+            }
 
 
+
+
+            FamilyInstance teee = null;
+            teee.LookupParameter("Angle").AsDouble();
+            string familyName = "M_Tee - Generic";
+
+            Family familyTee = new FilteredElementCollector(doc).OfClass(typeof(Family)).Cast<Family>().
+                Where(x => x.FamilyCategory.Id.Value == (long)BuiltInCategory.OST_PipeFitting).
+                First(x => x.Name == familyName);
+
+            FamilySymbol typeTee = doc.GetElement(familyTee.GetFamilySymbolIds().First()) as FamilySymbol;
+            FamilyInstance teeInstance = null;
+            XYZ point = null;
+            using(Transaction t= new Transaction(doc, "PutFamily"))
+            {
+                t.Start();
+                if (typeTee.IsActive==false)
+                {
+                    typeTee.Activate();
+                }
+                teeInstance = doc.Create.NewFamilyInstance(point, typeTee, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                t.Commit();
+            }
+
+            //doc.Create.NewFamilyInstance()
+
+            List<FamilyInstance> listAirTermial = new List<FamilyInstance>();
+            Duct mainDuct = null;
+
+            List<Connector> listConnectorTerminal = new List<Connector>();
+            foreach(FamilyInstance termial in listAirTermial)
+            {
+                MEPModel mepModelTerminal = termial.MEPModel;
+                if (mepModelTerminal != null)
+                {
+                    ConnectorManager connectorManagerAT = mepModelTerminal.ConnectorManager;
+                    Connector connectorAT = connectorManagerAT.Lookup(0);
+                    listConnectorTerminal.Add(connectorAT);
+                }
+
+            }
+
+            LocationCurve locationMainDuct = mainDuct.Location as LocationCurve;
+            Line lineMainDuct = locationMainDuct.Curve as Line;
+            XYZ directionMainDuct = lineMainDuct.Direction.Normalize();
+
+
+            ElementId mainDuctTypeId = mainDuct.GetTypeId();
+            ElementId mainDuctLevel = mainDuct.LevelId;
+            ElementId mainDuctSystemTypeId = mainDuct.get_Parameter(BuiltInParameter.RBS_DUCT_SYSTEM_TYPE_PARAM).AsElementId();
+
+            foreach(Connector connectorAT in listConnectorTerminal)
+            {
+                XYZ pointConnector = connectorAT.Origin;
+                Plane planeConnectorAT = Plane.CreateByNormalAndOrigin(directionMainDuct, pointConnector);
+                XYZ pointIntersect = XYZCalculator.IntersectionPlaneByVector(planeConnectorAT, directionMainDuct, lineMainDuct.GetEndPoint(0));
+
+                XYZ directionIntersectToConnectorAT = new XYZ(pointConnector.X, pointConnector.Y, pointIntersect.Z).Subtract(pointIntersect).Normalize();
+
+                Transform transform200 = Transform.CreateTranslation(directionIntersectToConnectorAT * 200 / 304.8);
+                XYZ point200 = transform200.OfPoint(pointIntersect);
+                XYZ point400 = transform200.OfPoint(point200);
+
+                Duct ductSub = null;
+                using(Transaction t= new Transaction(doc, "CreateSub"))
+                {
+                    t.Start();
+                    ductSub = Duct.Create(doc, mainDuctSystemTypeId, mainDuctTypeId, mainDuctLevel, point200, point400);
+                    t.Commit();
+                }
+
+                Connector connecor200 = ductSub.ConnectorManager.Lookup(0);
+                Connector connecor400 = ductSub.ConnectorManager.Lookup(1);
+
+                FamilyInstance takeOff = null;
+                using (Transaction t = new Transaction(doc, "CreateSub"))
+                {
+                    t.Start();
+                    doc.Create.NewTakeoffFitting(connecor200, mainDuct);
+                    t.Commit();
+                }
+
+                Family familyDA = new FilteredElementCollector(doc).OfClass(typeof(Family)).Cast<Family>()
+                    .First(x => x.Name == "M_Fire Damper - Rectangular - Simple");
+                ElementId idSyl = familyDA.GetFamilySymbolIds().First();
+                FamilySymbol fammilySymbol = doc.GetElement(idSyl) as FamilySymbol;
+
+                FamilyInstance ductAccessory = null;
+                using (Transaction t = new Transaction(doc, "CreateSub"))
+                {
+                    t.Start();
+                    if (!fammilySymbol.IsActive) fammilySymbol.Activate();
+                    ductAccessory = doc.Create.NewFamilyInstance(point400, fammilySymbol, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                    t.Commit();
+                }
+
+                MEPModel mepModelAccessory = ductAccessory.MEPModel ;
+                Connector connecorAC1 = mepModelAccessory.ConnectorManager.Lookup(0);
+                XYZ directionAC1 = connecorAC1.CoordinateSystem.BasisZ.Normalize();
+                XYZ directionSub = point400.Subtract(point200).Normalize();
+
+                double angleRotation = FindAngleRotaion(directionAC1, directionSub, XYZ.BasisZ);
+
+                if( Math.Abs(angleRotation)> 0.0001)
+                {
+                    using (Transaction t = new Transaction(doc, "CreateSub"))
+                    {
+                        t.Start();
+                        Line lineAxis = Line.CreateUnbound(point400, XYZ.BasisZ);
+                        ElementTransformUtils.RotateElement(doc, ductAccessory.Id, lineAxis, angleRotation);
+                        t.Commit();
+                    }
+                }
+
+                //
+                //doc.Create.NewFlexDuct()
+
+
+                //Autodesk.Revit.DB.Connector connecor1 = null;
+                //connecor1.ConnectTo()
+                ViewFamilyType typeOfSection = new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>().First();
+                BoundingBoxXYZ boundaingBox = new BoundingBoxXYZ();
+                Transform transformSection = Transform.Identity;
+                transformSection.Origin = null;
+                transformSection.BasisX = null;// truc cua ong
+                transformSection.BasisY = XYZ.BasisZ;
+                transformSection.BasisZ = transformSection.BasisX.CrossProduct(transformSection.BasisY);
+
+                boundaingBox.Transform = transformSection;
+                double length = 1000; // chieu dai cua ong
+                double radius = 100;// ban kinh cua ong
+                XYZ min = new XYZ(-length / 2, 0, -radius);
+                XYZ max = new XYZ(length / 2, -radius, radius);
+                boundaingBox.Min = min;
+                boundaingBox.Max = max;
+
+
+                ViewSection.CreateSection(doc, typeOfSection.Id, boundaingBox);
+
+            }
 
 
             #endregion
             return Result.Succeeded;
 
+        }
+
+        public static double FindAngleRotaion(XYZ originDirection, XYZ targetDirection, XYZ vectorAxis)
+        {
+            double angleResult = 0;
+            double angle = targetDirection.AngleTo(originDirection);
+            targetDirection = targetDirection.Normalize();
+            XYZ viewDirection = vectorAxis.Normalize();
+            Transform transform1 = Transform.CreateRotation(viewDirection, angle);
+            XYZ vectorNew1 = transform1.OfVector(originDirection).Normalize();
+            if (vectorNew1.IsAlmostEqualTo(targetDirection, 0.0001))
+            {
+                angleResult = angle;
+            }
+            else if (vectorNew1.IsAlmostEqualTo(-targetDirection, 0.0001))
+            {
+                angleResult = angle + Math.PI;
+            }
+            else
+            {
+                angleResult = -angle;
+                Transform transform2 = Transform.CreateRotation(viewDirection, -angle);
+                XYZ vectorNew2 = transform2.OfVector(originDirection).Normalize();
+                if (vectorNew2.IsAlmostEqualTo(targetDirection, 0.0001))
+                {
+                    angleResult = -angle;
+                }
+                else
+                {
+                    angleResult = -angle + Math.PI;
+                }
+            }
+            return angleResult;
         }
     }
 

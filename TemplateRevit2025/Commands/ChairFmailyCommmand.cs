@@ -29,19 +29,19 @@ namespace TemplateRevit2025.Commands
             chairFamilyVM.Families = listFamily.Select(x => new FamillyVm { Id = x.Id, NameChair = x.Name })
                 .ToList();
 
-            var form = new ChairFamilyView();
+            //var form = new ChairFamilyView();
 
-            form.DataContext = chairFamilyVM;
+            //form.DataContext = chairFamilyVM;
 
-            GetTypeHandler getTypeHandler = new GetTypeHandler();
-            ExternalEvent getTypeEvent = ExternalEvent.Create(getTypeHandler);
+            //GetTypeHandler getTypeHandler = new GetTypeHandler();
+            //ExternalEvent getTypeEvent = ExternalEvent.Create(getTypeHandler);
 
-            form._familySendEvent.FamilyComboboxChangeEvent += getTypeHandler.SetDataFromEvent;
-            form.GetTypeEvent = getTypeEvent;
+            //form._familySendEvent.FamilyComboboxChangeEvent += getTypeHandler.SetDataFromEvent;
+            //form.GetTypeEvent = getTypeEvent;
 
-            getTypeHandler.SendEventToForm.FamilyComboboxChangeEvent += form.SetListTypeVm;
+            //getTypeHandler.SendEventToForm.FamilyComboboxChangeEvent += form.SetListTypeVm;
 
-            form.Show();
+            //form.Show();
 
             return Result.Succeeded;
         }
