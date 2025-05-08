@@ -227,11 +227,6 @@ namespace TemplateRevit2025.Commands
             return Result.Succeeded;
 
         }
-
-
-        
-        
-
        
     }
     public class ILineFitler : ISelectionFilter

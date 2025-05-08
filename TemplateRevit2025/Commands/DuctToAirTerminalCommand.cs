@@ -28,16 +28,9 @@ namespace TemplateRevit2025.Commands
                 if(el is FamilyInstance)
                 {
                     FamilyInstance fa= el as FamilyInstance;
-                    if(fa.Symbol.Family.FamilyCategory.Id.Value== (long)BuiltInCategory.OST_DuctTerminal)
-                    {
-                        airTermainal = fa;
-                    }
-
+                    if(fa.Symbol.Family.FamilyCategory.Id.Value== (long)BuiltInCategory.OST_DuctTerminal) airTermainal = fa;
                 }
-                else if(el is Duct)
-                {
-                    duct= el as Duct;
-                }
+                else if(el is Duct) duct = el as Duct;
             }
             if (airTermainal == null || duct == null) return Result.Succeeded;
 
