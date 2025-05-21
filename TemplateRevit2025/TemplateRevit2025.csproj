@@ -40,6 +40,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
+    <PackageReference Include="netDxf" Version="2023.11.10" />
   </ItemGroup>
 
   <ItemGroup>

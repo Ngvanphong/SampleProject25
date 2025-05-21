@@ -9,6 +9,7 @@ using Autodesk.Internal.InfoCenter;
 using TemplateRevit2025.Utilities;
 using MyExcel= Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Excel;
+using TemplateRevit2025.Shared;
 
 namespace TemplateRevit2025.Commands
 {
@@ -695,99 +696,108 @@ namespace TemplateRevit2025.Commands
 
 
             #endregion
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "Browse Text Files";
-            dialog.DefaultExt = "xlsx";
-            dialog.Filter = "xlsx files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-            DialogResult dialogResult=  dialog.ShowDialog();
-            if(dialogResult == DialogResult.OK)
-            {
-                string fullPath = dialog.FileName;
 
-                MyExcel.Application excelApp= new MyExcel.Application();
-                MyExcel.Workbook excelWorkbook= excelApp.Workbooks.Open(fullPath);
-                MyExcel.Worksheet excelWorksheet = excelWorkbook.Sheets["Sheet1"];
+            #region excel
 
-                MyExcel.Range rangeEnd = excelWorksheet.Cells.SpecialCells(MyExcel.XlCellType.xlCellTypeLastCell);
-                int rowEnd = rangeEnd.Row;
-                int columnEnd = rangeEnd.Column;
+            //OpenFileDialog dialog = new OpenFileDialog();
+            //dialog.Title = "Browse Text Files";
+            //dialog.DefaultExt = "xlsx";
+            //dialog.Filter = "xlsx files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+            //DialogResult dialogResult=  dialog.ShowDialog();
+            //if(dialogResult == DialogResult.OK)
+            //{
+            //    string fullPath = dialog.FileName;
 
-                List<string> listParameters = new List<string>();
-                for(int col = 3; col<= columnEnd; col++)
-                {
-                    MyExcel.Range cellItem = excelWorksheet.Cells[1, col];
-                    if(cellItem.Value2 != null)
-                    {
-                        string value = cellItem.Value2;
-                        if (!string.IsNullOrWhiteSpace(value))
-                        {
-                            listParameters.Add(value);
-                        }
+            //    MyExcel.Application excelApp= new MyExcel.Application();
+            //    MyExcel.Workbook excelWorkbook= excelApp.Workbooks.Open(fullPath);
+            //    MyExcel.Worksheet excelWorksheet = excelWorkbook.Sheets["Sheet1"];
 
-                    }
-                }
-                List<DataFromExcel> listDataFromExcel = new List<DataFromExcel>();
-                for(int row= 2; row<= rowEnd; row++)
-                {
-                    MyExcel.Range family = excelWorksheet.Cells[row, 1];
-                    if (family != null)
-                    {
-                        string familyName = family.Value2;
-                        if (!string.IsNullOrWhiteSpace(familyName))
-                        {
-                            DataFromExcel dataExcelItem = new DataFromExcel();
-                            dataExcelItem.ListDouble = new List<double>();
-                            dataExcelItem.FamilyName = familyName;
-                            string typeName = excelWorksheet.Cells[row, 2].Value2;
-                            dataExcelItem.TypeName= typeName;
-                            for(int col= 3; col<= columnEnd; col++)
-                            {
-                                double valueDouble = excelWorksheet.Cells[row,col].Value2;
-                                dataExcelItem.ListDouble.Add(valueDouble);
-                            }
-                            listDataFromExcel.Add(dataExcelItem);
-                        }
-                       
-                    }
-                }
-                excelWorkbook.Close();
-                excelApp.Quit();
+            //    MyExcel.Range rangeEnd = excelWorksheet.Cells.SpecialCells(MyExcel.XlCellType.xlCellTypeLastCell);
+            //    int rowEnd = rangeEnd.Row;
+            //    int columnEnd = rangeEnd.Column;
 
-                var allFamily = new FilteredElementCollector(doc).OfClass(typeof(Family))
-                    .Cast<Family>().ToList();
+            //    List<string> listParameters = new List<string>();
+            //    for(int col = 3; col<= columnEnd; col++)
+            //    {
+            //        MyExcel.Range cellItem = excelWorksheet.Cells[1, col];
+            //        if(cellItem.Value2 != null)
+            //        {
+            //            string value = cellItem.Value2;
+            //            if (!string.IsNullOrWhiteSpace(value))
+            //            {
+            //                listParameters.Add(value);
+            //            }
 
-                using(TransactionGroup tg= new TransactionGroup(doc, "GroupType"))
-                {
-                    tg.Start();
-                    foreach (DataFromExcel excelItem in listDataFromExcel)
-                    {
-                        Family familyItem = allFamily.First(x => x.Name == excelItem.FamilyName);
-                        FamilySymbol defaultSymbol = doc.GetElement(familyItem.GetFamilySymbolIds().First()) as FamilySymbol;
-                        FamilySymbol newType = null;
-                        using (Transaction t = new Transaction(doc, "CreateType"))
-                        {
-                            t.Start();
-                            newType = defaultSymbol.Duplicate(excelItem.TypeName) as FamilySymbol;
-                            t.Commit();
-                        }
-                        using (Transaction t2 = new Transaction(doc, "SetPara"))
-                        {
-                            t2.Start();
-                            for (int index = 0; index < listParameters.Count; index++)
-                            {
-                                string paraName = listParameters[index];
-                                double valuePara = excelItem.ListDouble[index];
-                                newType.LookupParameter(paraName).Set(valuePara / 304.8);
-                            }
-                            t2.Commit();
-                        }
-                    }
-                    tg.Assimilate();
-                }
+            //        }
+            //    }
+            //    List<DataFromExcel> listDataFromExcel = new List<DataFromExcel>();
+            //    for(int row= 2; row<= rowEnd; row++)
+            //    {
+            //        MyExcel.Range family = excelWorksheet.Cells[row, 1];
+            //        if (family != null)
+            //        {
+            //            string familyName = family.Value2;
+            //            if (!string.IsNullOrWhiteSpace(familyName))
+            //            {
+            //                DataFromExcel dataExcelItem = new DataFromExcel();
+            //                dataExcelItem.ListDouble = new List<double>();
+            //                dataExcelItem.FamilyName = familyName;
+            //                string typeName = excelWorksheet.Cells[row, 2].Value2;
+            //                dataExcelItem.TypeName= typeName;
+            //                for(int col= 3; col<= columnEnd; col++)
+            //                {
+            //                    double valueDouble = excelWorksheet.Cells[row,col].Value2;
+            //                    dataExcelItem.ListDouble.Add(valueDouble);
+            //                }
+            //                listDataFromExcel.Add(dataExcelItem);
+            //            }
 
-            }
+            //        }
+            //    }
+            //    excelWorkbook.Close();
+            //    excelApp.Quit();
 
+            //    var allFamily = new FilteredElementCollector(doc).OfClass(typeof(Family))
+            //        .Cast<Family>().ToList();
 
+            //    using(TransactionGroup tg= new TransactionGroup(doc, "GroupType"))
+            //    {
+            //        tg.Start();
+            //        foreach (DataFromExcel excelItem in listDataFromExcel)
+            //        {
+            //            Family familyItem = allFamily.First(x => x.Name == excelItem.FamilyName);
+            //            FamilySymbol defaultSymbol = doc.GetElement(familyItem.GetFamilySymbolIds().First()) as FamilySymbol;
+            //            FamilySymbol newType = null;
+            //            using (Transaction t = new Transaction(doc, "CreateType"))
+            //            {
+            //                t.Start();
+            //                newType = defaultSymbol.Duplicate(excelItem.TypeName) as FamilySymbol;
+            //                t.Commit();
+            //            }
+            //            using (Transaction t2 = new Transaction(doc, "SetPara"))
+            //            {
+            //                t2.Start();
+            //                for (int index = 0; index < listParameters.Count; index++)
+            //                {
+            //                    string paraName = listParameters[index];
+            //                    double valuePara = excelItem.ListDouble[index];
+            //                    newType.LookupParameter(paraName).Set(valuePara / 304.8);
+            //                }
+            //                t2.Commit();
+            //            }
+            //        }
+            //        tg.Assimilate();
+            //    }
+
+            //}
+            #endregion
+
+            
+            var refPick = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, "Pick objects");
+            ImportInstance cadImport = doc.GetElement(refPick) as ImportInstance;
+            string fullPath= ExportCadToDxf.ExportToDxf(doc, cadImport);
+
+            List<Autodesk.Revit.DB.Line> listLine= ReadFileDxf.GetAllLineDxf(fullPath, cadImport.GetTransform());   
 
             return Result.Succeeded;
 
