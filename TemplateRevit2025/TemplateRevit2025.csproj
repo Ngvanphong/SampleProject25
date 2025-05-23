@@ -11,6 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Images\**" />
+    <Compile Remove="Model\**" />
+    <EmbeddedResource Remove="Images\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="Images\**" />
+    <None Remove="Model\**" />
+    <Page Remove="Images\**" />
+    <Page Remove="Model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Fonts\Rubik-Medium.ttf" />
     <None Remove="Fonts\Rubik-Regular.ttf" />
     <None Remove="Resources\Images\icons8-crop-24 %283%29.png" />
@@ -22,23 +33,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Images\" />
-    <Folder Include="Model\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="AdWindows">
-      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\AdWindows.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\AdWindows.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\RevitAPI.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPI.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\RevitInstall\2025\Revit 2025\RevitAPIUI.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPIUI.dll</HintPath>
     </Reference>
   </ItemGroup>
 
